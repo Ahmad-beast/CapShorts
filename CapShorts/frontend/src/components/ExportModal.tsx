@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Share2, CheckCircle2, Download, Sparkles, FolderDown, Zap, Flame } from 'lucide-react';
 import { useVideoStore } from '../store/useVideoStore';
+import { apiUrl } from '../config';
 import templatesData from '../data/templates.json';
 import { SubtitlePreset } from '../types';
 
@@ -69,7 +70,7 @@ export const ExportModal: React.FC = () => {
         payload.clip_end = activeClip.end;
       }
 
-      const res = await fetch('/api/export', {
+      const res = await fetch(apiUrl('/api/export'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -85,7 +86,7 @@ export const ExportModal: React.FC = () => {
       // Poll progress every 500ms
       const interval = setInterval(async () => {
         try {
-          const pollRes = await fetch(`/api/export/progress/${taskId}`);
+          const pollRes = await fetch(apiUrl(`/api/export/progress/${taskId}`));
           if (pollRes.ok) {
             const taskData = await pollRes.json();
             setExportProgress(taskData.progress, taskData.status);

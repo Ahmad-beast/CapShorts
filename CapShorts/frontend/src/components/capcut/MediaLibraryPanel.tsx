@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useVideoStore } from '../../store/useVideoStore';
+import { apiUrl } from '../../config';
 import { SubtitlePreset, VideoClip, BrollClip } from '../../types';
 import templatesData from '../../data/templates.json';
 import { formatTime, formatTimeWithMs } from '../../utils/timeFormat';
@@ -161,7 +162,7 @@ export const MediaLibraryPanel: React.FC = () => {
     setIsSearchingBroll(true);
     try {
       const queryParams = new URLSearchParams({ keyword: kw, api_key: pexelsKey });
-      const res = await fetch(`/api/broll/search?${queryParams}`);
+      const res = await fetch(apiUrl(`/api/broll/search?${queryParams}`));
       if (res.ok) {
         const data = await res.json();
         setBrollResults(data.results || []);
@@ -577,7 +578,7 @@ export const MediaLibraryPanel: React.FC = () => {
               <button
                 onClick={async () => {
                   try {
-                    const res = await fetch('/api/clips/generate', {
+                    const res = await fetch(apiUrl('/api/clips/generate'), {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ words: transcript, duration: duration || 60 })

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Film, Search, Key, Plus, Trash2, Eye, EyeOff, Sparkles, Clock, Check } from 'lucide-react';
 import { useVideoStore } from '../store/useVideoStore';
+import { apiUrl } from '../config';
 import { BrollClip } from '../types';
 import { formatTimeWithMs } from '../utils/timeFormat';
 
@@ -42,7 +43,7 @@ export const BrollManager: React.FC = () => {
         keyword: kw,
         api_key: apiKey
       });
-      const res = await fetch(`/api/broll/search?${queryParams}`);
+      const res = await fetch(apiUrl(`/api/broll/search?${queryParams}`));
       if (res.ok) {
         const data = await res.json();
         setSearchResults(data.results || []);

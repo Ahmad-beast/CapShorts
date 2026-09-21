@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { apiUrl } from '../config';
 import { WordToken, SubtitlePreset, BrollClip, VideoClip, VideoSegment, AspectRatio, EngineHealth, ExportSettings } from '../types';
 
 interface VideoStoreState {
@@ -392,7 +393,7 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
         formData.append('groq_api_key', groqApiKey.trim());
       }
 
-      const response = await fetch('/api/transcribe', {
+      const response = await fetch(apiUrl('/api/transcribe'), {
         method: 'POST',
         body: formData,
       });
@@ -435,7 +436,7 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
           }
 
           try {
-            const progRes = await fetch(`/api/transcribe/progress/${taskId}`);
+            const progRes = await fetch(apiUrl(`/api/transcribe/progress/${taskId}`));
             if (progRes.ok) {
               const progData = await progRes.json();
               set({
@@ -506,7 +507,7 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
     const { transcript } = get();
     if (!transcript || transcript.length === 0) return;
     try {
-      const res = await fetch('/api/transcript/convert-script', {
+      const res = await fetch(apiUrl('/api/transcript/convert-script'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ words: transcript, target_script: targetScript })
@@ -685,7 +686,7 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
 
     set({ isDetectingSilence: true });
     try {
-      const res = await fetch('/api/silence/detect', {
+      const res = await fetch(apiUrl('/api/silence/detect'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ video_path: targetPath, noise_threshold_db: -30, min_duration: 0.5 })

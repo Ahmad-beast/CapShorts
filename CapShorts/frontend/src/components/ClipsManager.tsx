@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, Play, Flame, Download, Clock, Scissors, RotateCcw, Tag } from 'lucide-react';
 import { useVideoStore } from '../store/useVideoStore';
+import { apiUrl } from '../config';
 import { formatTimeWithMs } from '../utils/timeFormat';
 import { VideoClip } from '../types';
 
@@ -35,7 +36,7 @@ export const ClipsManager: React.FC = () => {
 
   const handleRegenerateClips = async () => {
     try {
-      const res = await fetch('/api/clips/generate', {
+      const res = await fetch(apiUrl('/api/clips/generate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

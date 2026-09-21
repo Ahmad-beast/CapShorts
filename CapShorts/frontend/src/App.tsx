@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
+import { apiUrl } from './config';
 import { Sparkles, X } from 'lucide-react';
 import { CapCutHeader } from './components/capcut/CapCutHeader';
 import { MediaLibraryPanel } from './components/capcut/MediaLibraryPanel';
@@ -47,7 +48,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const res = await fetch('/api/health');
+        const res = await fetch(apiUrl('/api/health'));
         if (res.ok) {
           const data = await res.json();
           setEngineHealth(data);

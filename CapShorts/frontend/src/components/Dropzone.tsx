@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { UploadCloud, Play, Sparkles, AlertCircle, CheckCircle2, Zap, Key, ExternalLink, ShieldCheck } from 'lucide-react';
 import { useVideoStore } from '../store/useVideoStore';
+import { apiUrl } from '../config';
 
 const SAMPLE_VIDEO_URL = "https://assets.mixkit.co/videos/preview/mixkit-vertical-video-of-a-woman-talking-on-the-phone-in-the-city-43183-large.mp4";
 
@@ -59,7 +60,7 @@ export const Dropzone: React.FC = () => {
   const handleSaveAsMaster = async () => {
     if (!groqApiKey || groqApiKey.trim().length < 10) return;
     try {
-      const res = await fetch('/api/settings/master-key', {
+      const res = await fetch(apiUrl('/api/settings/master-key'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: groqApiKey.trim() })
