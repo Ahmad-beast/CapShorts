@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Share2, CheckCircle2, Download, Sparkles, FolderDown, Zap, Flame } from 'lucide-react';
+import { X, Share2, CheckCircle2, Download, Sparkles, FolderDown, Zap, Flame, Loader2 } from 'lucide-react';
 import { useVideoStore } from '../store/useVideoStore';
 import { apiUrl } from '../config';
 import templatesData from '../data/templates.json';
@@ -44,6 +44,31 @@ export const ExportModal: React.FC = () => {
   }, [activeClip]);
 
   if (!isExportModalOpen) return null;
+
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadVideo = async () => {
+    if (!exportResultUrl || exportResultUrl === '#') return;
+    setIsDownloading(true);
+    try {
+      const res = await fetch(exportResultUrl);
+      if (!res.ok) throw new Error("File fetch failed");
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = outputFilename || 'viral_short.mp4';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    } catch (e) {
+      console.warn("Direct blob download error, falling back to direct open:", e);
+      window.open(exportResultUrl, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleStartExport = async () => {
     setIsExporting(true);
@@ -94,7 +119,8 @@ export const ExportModal: React.FC = () => {
             if (taskData.progress >= 100) {
               clearInterval(interval);
               setIsExporting(false);
-              setExportResultUrl(taskData.download_url || '#');
+              const cleanUrl = taskData.download_url ? apiUrl(taskData.download_url) : '#';
+              setExportResultUrl(cleanUrl);
             }
           }
         } catch (e) {
@@ -122,7 +148,7 @@ export const ExportModal: React.FC = () => {
         clearInterval(interval);
         setExportProgress(100, "Complete! Video rendered without watermarks.");
         setIsExporting(false);
-        setExportResultUrl('/sample_output.mp4');
+        setExportResultUrl(apiUrl('/sample_output.mp4'));
       }
     }, 450);
   };
@@ -246,14 +272,18 @@ export const ExportModal: React.FC = () => {
                 </div>
               </div>
               {exportResultUrl && (
-                <a
-                  href={exportResultUrl}
-                  download={outputFilename}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-colors"
+                <button
+                  onClick={handleDownloadVideo}
+                  disabled={isDownloading}
+                  className="flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all active:scale-95 disabled:opacity-50 shadow-md shadow-emerald-900/30"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download</span>
-                </a>
+                  {isDownloading ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Download className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isDownloading ? 'Saving...' : 'Save Video'}</span>
+                </button>
               )}
             </div>
           )}

@@ -769,16 +769,20 @@ def run_export_job(task_id: str, payload: ExportPayload):
         
         trim_args = []
         if is_clip_export:
-            trim_args = ["-ss", str(payload.clip_start), "-to", str(payload.clip_end)]
+            clip_len = max(1.0, round(payload.clip_end - payload.clip_start, 2))
+            trim_args = ["-ss", str(payload.clip_start), "-t", str(clip_len)]
 
         is_landscape_input = (in_w > in_h)
 
         hw_encoder_name, hw_args = detect_hardware_encoder()
 
+        # Ultra-fast cinematic background blur: downscale to 270x480, single light blur pass, scale to 1080x1920 (16x faster render)
+        fast_vert_blur = "[bg]scale=270:480:force_original_aspect_ratio=increase,crop=270:480,boxblur=6:1,scale=1080:1920[bg_b]"
+
         if downloaded_broll:
             extra_inputs, filter_chains, last_stream = build_ffmpeg_broll_filter(downloaded_broll)
             if is_vertical_short and is_landscape_input:
-                vert_prep = "[0:v]split=2[fg][bg];[bg]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5[bg_b];[fg]scale=1080:1920:force_original_aspect_ratio=decrease[fg_s];[bg_b][fg_s]overlay=(W-w)/2:(H-h)/2[vcomp];"
+                vert_prep = f"[0:v]split=2[fg][bg];{fast_vert_blur};[fg]scale=1080:1920:force_original_aspect_ratio=decrease[fg_s];[bg_b][fg_s]overlay=(W-w)/2:(H-h)/2[vcomp];"
                 full_filter = f"{vert_prep}{filter_chains.replace('[0:v]', '[vcomp]')};{last_stream}ass='{escaped_ass}'[vfinal]"
             else:
                 full_filter = f"{filter_chains};{last_stream}ass='{escaped_ass}'[vfinal]"
@@ -793,8 +797,7 @@ def run_export_job(task_id: str, payload: ExportPayload):
             ]
         else:
             if is_vertical_short and is_landscape_input:
-                # Opus Clip style vertical video with blurred background & centered video
-                vert_filter = f"[0:v]split=2[fg][bg];[bg]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5[bg_b];[fg]scale=1080:1920:force_original_aspect_ratio=decrease[fg_s];[bg_b][fg_s]overlay=(W-w)/2:(H-h)/2[vcomp];[vcomp]ass='{escaped_ass}'[vfinal]"
+                vert_filter = f"[0:v]split=2[fg][bg];{fast_vert_blur};[fg]scale=1080:1920:force_original_aspect_ratio=decrease[fg_s];[bg_b][fg_s]overlay=(W-w)/2:(H-h)/2[vcomp];[vcomp]ass='{escaped_ass}'[vfinal]"
                 cmd = [
                     ffmpeg_bin, "-y"
                 ] + trim_args + [
@@ -822,16 +825,14 @@ def run_export_job(task_id: str, payload: ExportPayload):
             if proc.returncode != 0:
                 print(f"[export] FFmpeg error ({hw_encoder_name}): {proc.stderr.decode('utf-8', errors='ignore')}")
                 # Fallback to software libx264 if hardware encoder fails during render
-                fallback_cmd = [c for c in cmd]
-                # Replace hw_args with libx264
                 print("[export] Retrying with CPU libx264 fallback...")
                 fb_cmd = [ffmpeg_bin, "-y"] + trim_args + ["-i", input_video]
                 if is_vertical_short and is_landscape_input:
-                    vert_filter = f"[0:v]split=2[fg][bg];[bg]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5[bg_b];[fg]scale=1080:1920:force_original_aspect_ratio=decrease[fg_s];[bg_b][fg_s]overlay=(W-w)/2:(H-h)/2[vcomp];[vcomp]ass='{escaped_ass}'[vfinal]"
+                    vert_filter = f"[0:v]split=2[fg][bg];{fast_vert_blur};[fg]scale=1080:1920:force_original_aspect_ratio=decrease[fg_s];[bg_b][fg_s]overlay=(W-w)/2:(H-h)/2[vcomp];[vcomp]ass='{escaped_ass}'[vfinal]"
                     fb_cmd += ["-filter_complex", vert_filter, "-map", "[vfinal]", "-map", "0:a?"]
                 else:
                     fb_cmd += ["-vf", f"ass='{escaped_ass}'"]
-                fb_cmd += ["-c:v", "libx264", "-preset", "fast", "-crf", "18", "-c:a", "aac", output_file]
+                fb_cmd += ["-c:v", "libx264", "-preset", "ultrafast", "-crf", "20", "-c:a", "aac", output_file]
                 proc2 = subprocess.run(fb_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=SUBPROCESS_FLAGS)
                 if proc2.returncode != 0:
                     raise RuntimeError("FFmpeg render failed on both hardware and software encoders.")
@@ -852,6 +853,20 @@ def run_export_job(task_id: str, payload: ExportPayload):
             "status": f"Export Error: {str(e)}",
             "error": str(e)
         }
+
+@app.get("/api/download/{filename}")
+def download_exported_file(filename: str):
+    """Serves the rendered MP4 video file directly for download or preview."""
+    safe_name = os.path.basename(filename)
+    target_path = os.path.join(OUTPUT_DIR, safe_name)
+    if not os.path.exists(target_path):
+        raise HTTPException(status_code=404, detail=f"Exported video file not found: {safe_name}")
+    
+    return FileResponse(
+        path=target_path,
+        media_type="video/mp4",
+        filename=safe_name
+    )
 
 class ScriptConvertPayload(BaseModel):
     words: List[Dict[str, Any]]
