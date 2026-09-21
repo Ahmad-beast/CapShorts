@@ -137,6 +137,10 @@ interface VideoStoreState {
   removedSilenceDuration: number;
   detectAndRemoveSilence: () => Promise<void>;
   undoSilenceRemoval: () => void;
+
+  transcribeError: string | null;
+  clearTranscribeError: () => void;
+  loadSampleDemo: () => void;
 }
 
 export const useVideoStore = create<VideoStoreState>((set, get) => ({
@@ -149,59 +153,56 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
   isPlaying: false,
   aspectRatio: '9:16',
 
-  transcript: [
-    { id: 'w1', start: 0.3, end: 0.8, word: 'Unlock', keyword: false },
-    { id: 'w2', start: 0.82, end: 1.4, word: 'Millions', keyword: true },
-    { id: 'w3', start: 1.42, end: 1.7, word: 'of', keyword: false },
-    { id: 'w4', start: 1.72, end: 2.1, word: 'views', keyword: false },
-    { id: 'w5', start: 2.15, end: 2.45, word: 'with', keyword: false },
-    { id: 'w6', start: 2.48, end: 2.8, word: 'AI', keyword: true },
-    { id: 'w7', start: 2.82, end: 3.2, word: 'video', keyword: false },
-    { id: 'w8', start: 3.22, end: 3.9, word: 'captions!', keyword: false },
-    { id: 'w9', start: 4.1, end: 4.5, word: 'Stop', keyword: true },
-    { id: 'w10', start: 4.52, end: 5.0, word: 'wasting', keyword: false },
-    { id: 'w11', start: 5.02, end: 5.4, word: 'hours', keyword: false },
-    { id: 'w12', start: 5.42, end: 6.1, word: 'manually', keyword: false },
-    { id: 'w13', start: 6.15, end: 6.6, word: 'editing', keyword: false },
-    { id: 'w14', start: 6.62, end: 7.3, word: 'subtitles.', keyword: false },
-  ],
+  transcript: [],
   activeTemplateId: 'mrbeast-yellow-pop',
   customStyleOverrides: {},
 
-  clips: [
-    {
-      id: 'clip-sample-1',
-      title: '🔥 The 10x Secret to Viral Shorts',
-      hook: 'Unlock millions of views with AI video captions!',
-      start: 0.0,
-      end: 7.3,
-      duration: 7.3,
-      virality_score: 97,
-      keywords: ['millions', 'ai', 'stop', 'views'],
-      transcript_snippet: 'Unlock millions of views with AI video captions! Stop wasting hours manually editing subtitles.'
-    }
-  ],
+  clips: [],
   selectedClipId: null,
 
   groqApiKey: typeof window !== 'undefined' ? localStorage.getItem('opencaption_groq_key') || '' : '',
   rangeMode: 'full',
 
-  brollList: [
-    {
-      id: 'broll-sample-1',
-      keyword: 'millions',
-      title: 'Money & Currency Counting',
-      preview_url: 'https://assets.mixkit.co/videos/preview/mixkit-counting-dollar-bills-close-up-41589-large.mp4',
-      video_url: 'https://assets.mixkit.co/videos/preview/mixkit-counting-dollar-bills-close-up-41589-large.mp4',
-      duration: 12,
-      start: 0.8,
-      end: 2.2,
-      enabled: false
-    }
-  ],
+  brollList: [],
 
   engineHealth: null,
   isTranscribing: false,
+  transcribeError: null,
+  clearTranscribeError: () => set({ transcribeError: null }),
+
+  loadSampleDemo: () => set({
+    transcript: [
+      { id: 'w1', start: 0.3, end: 0.8, word: 'Unlock', keyword: false },
+      { id: 'w2', start: 0.82, end: 1.4, word: 'Millions', keyword: true },
+      { id: 'w3', start: 1.42, end: 1.7, word: 'of', keyword: false },
+      { id: 'w4', start: 1.72, end: 2.1, word: 'views', keyword: false },
+      { id: 'w5', start: 2.15, end: 2.45, word: 'with', keyword: false },
+      { id: 'w6', start: 2.48, end: 2.8, word: 'AI', keyword: true },
+      { id: 'w7', start: 2.82, end: 3.2, word: 'video', keyword: false },
+      { id: 'w8', start: 3.22, end: 3.9, word: 'captions!', keyword: false },
+      { id: 'w9', start: 4.1, end: 4.5, word: 'Stop', keyword: true },
+      { id: 'w10', start: 4.52, end: 5.0, word: 'wasting', keyword: false },
+      { id: 'w11', start: 5.02, end: 5.4, word: 'hours', keyword: false },
+      { id: 'w12', start: 5.42, end: 6.1, word: 'manually', keyword: false },
+      { id: 'w13', start: 6.15, end: 6.6, word: 'editing', keyword: false },
+      { id: 'w14', start: 6.62, end: 7.3, word: 'subtitles.', keyword: false },
+    ],
+    clips: [
+      {
+        id: 'clip-sample-1',
+        title: '🔥 The 10x Secret to Viral Shorts',
+        hook: 'Unlock millions of views with AI video captions!',
+        start: 0.0,
+        end: 7.3,
+        duration: 7.3,
+        virality_score: 97,
+        keywords: ['millions', 'ai', 'stop', 'views'],
+        transcript_snippet: 'Unlock millions of views with AI video captions! Stop wasting hours manually editing subtitles.'
+      }
+    ],
+    selectedClipId: null,
+    transcribeError: null,
+  }),
 
   // CapCut Desktop Studio State
   projectTitle: 'My Viral Short 01',
@@ -252,6 +253,10 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
       videoName: vName,
       currentTime: 0,
       isPlaying: false,
+      transcript: [],
+      clips: [],
+      selectedClipId: null,
+      transcribeError: null,
       videoSegments: [{
         id: 'seg-1',
         name: vName,
@@ -377,6 +382,7 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
 
     set({
       isTranscribing: true,
+      transcribeError: null,
       transcribeProgress: 6,
       transcribingStep: isTurbo
         ? '⚡ Turbo Mode: Uploading and extracting audio...'
@@ -404,7 +410,7 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
 
       const data = await response.json();
 
-      if (data.words && Array.isArray(data.words)) {
+      if (data.words && Array.isArray(data.words) && data.words.length > 0) {
         const formatted = data.words.map((w: any, idx: number) => ({
           id: `w-${idx}-${Date.now()}`,
           start: w.start,
@@ -418,7 +424,8 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
           serverVideoPath: data.video_path || null,
           isTranscribing: false,
           transcribeProgress: 100,
-          transcribingStep: ''
+          transcribingStep: '',
+          transcribeError: null,
         });
         return;
       }
@@ -446,7 +453,7 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
 
               if (progData.status === 'completed') {
                 clearInterval(pollTimer);
-                if (progData.words && Array.isArray(progData.words)) {
+                if (progData.words && Array.isArray(progData.words) && progData.words.length > 0) {
                   const formatted = progData.words.map((w: any, idx: number) => ({
                     id: `w-${idx}-${Date.now()}`,
                     start: w.start,
@@ -460,14 +467,23 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
                     serverVideoPath: progData.video_path || get().serverVideoPath,
                     isTranscribing: false,
                     transcribeProgress: 100,
-                    transcribingStep: ''
+                    transcribingStep: '',
+                    transcribeError: null,
                   });
                 } else {
-                  set({ isTranscribing: false, transcribingStep: '' });
+                  set({
+                    isTranscribing: false,
+                    transcribingStep: '',
+                    transcribeError: 'No speech detected in this audio.'
+                  });
                 }
               } else if (progData.status === 'failed') {
                 clearInterval(pollTimer);
-                set({ isTranscribing: false, transcribingStep: '' });
+                set({
+                  isTranscribing: false,
+                  transcribingStep: '',
+                  transcribeError: progData.error || 'Transcription failed'
+                });
               }
             }
           } catch (err) {
@@ -480,7 +496,8 @@ export const useVideoStore = create<VideoStoreState>((set, get) => ({
       set({
         isTranscribing: false,
         transcribeProgress: 0,
-        transcribingStep: ''
+        transcribingStep: '',
+        transcribeError: err?.message || 'Failed to connect to AI backend'
       });
     }
   },

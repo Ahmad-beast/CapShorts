@@ -81,16 +81,29 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| {
-            if let tauri::WindowEvent::Destroyed = event {
-                // Ensure backend engine is killed when window closes
-                if let Some(state) = window.try_state::<BackendProcess>() {
-                    if let Ok(mut lock) = state.0.lock() {
-                        if let Some(mut child) = lock.take() {
-                            let _ = child.kill();
-                            println!("[tauri] Background AI Engine terminated.");
+            match event {
+                tauri::WindowEvent::CloseRequested { .. } | tauri::WindowEvent::Destroyed => {
+                    // Ensure backend engine and all child processes are killed when window closes
+                    if let Some(state) = window.try_state::<BackendProcess>() {
+                        if let Ok(mut lock) = state.0.lock() {
+                            if let Some(mut child) = lock.take() {
+                                #[cfg(target_os = "windows")]
+                                {
+                                    use std::os::windows::process::CommandExt;
+                                    const CREATE_NO_WINDOW: u32 = 0x08000000;
+                                    let pid = child.id();
+                                    let _ = Command::new("taskkill")
+                                        .args(&["/F", "/PID", &pid.to_string(), "/T"])
+                                        .creation_flags(CREATE_NO_WINDOW)
+                                        .spawn();
+                                }
+                                let _ = child.kill();
+                                println!("[tauri] Background AI Engine terminated.");
+                            }
                         }
                     }
                 }
+                _ => {}
             }
         })
         .run(tauri::generate_context!())

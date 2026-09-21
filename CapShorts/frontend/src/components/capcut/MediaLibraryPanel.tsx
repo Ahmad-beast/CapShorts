@@ -21,7 +21,8 @@ import {
   Trash2,
   Key,
   Clock,
-  Download
+  Download,
+  AlertCircle
 } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useVideoStore } from '../../store/useVideoStore';
@@ -57,6 +58,8 @@ export const MediaLibraryPanel: React.FC = () => {
     isTranscribing,
     transcribeProgress,
     transcribingStep,
+    transcribeError,
+    clearTranscribeError,
     startTranscription,
     cancelTranscription,
     convertTranscriptScript,
@@ -95,6 +98,8 @@ export const MediaLibraryPanel: React.FC = () => {
       isTranscribing: state.isTranscribing,
       transcribeProgress: state.transcribeProgress,
       transcribingStep: state.transcribingStep,
+      transcribeError: state.transcribeError,
+      clearTranscribeError: state.clearTranscribeError,
       startTranscription: state.startTranscription,
       cancelTranscription: state.cancelTranscription,
       convertTranscriptScript: state.convertTranscriptScript,
@@ -358,6 +363,25 @@ export const MediaLibraryPanel: React.FC = () => {
                   >
                     Cancel transcription
                   </button>
+                </div>
+              )}
+
+              {/* Transcription Error Banner */}
+              {transcribeError && (
+                <div className="p-2.5 rounded-xl bg-red-950/40 border border-red-500/40 text-red-300 text-xs flex flex-col space-y-1">
+                  <div className="flex items-center justify-between font-bold">
+                    <div className="flex items-center space-x-1.5 text-red-400">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Transcription Failed</span>
+                    </div>
+                    <button
+                      onClick={clearTranscribeError}
+                      className="text-[10px] text-zinc-400 hover:text-white px-1"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <span className="text-[10px] text-red-200/80 leading-relaxed">{transcribeError}</span>
                 </div>
               )}
             </div>

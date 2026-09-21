@@ -55,6 +55,7 @@ export const Dropzone: React.FC = () => {
     setErrorMessage(null);
     const sampleFile = new File(["sample"], "viral_short_demo.mp4", { type: "video/mp4" });
     setVideo(sampleFile, SAMPLE_VIDEO_URL, "Viral Short Demo (9:16)");
+    useVideoStore.getState().loadSampleDemo();
   };
 
   const handleSaveAsMaster = async () => {
