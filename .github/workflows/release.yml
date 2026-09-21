@@ -23,6 +23,8 @@ jobs:
             os_name: 'macOS (Universal: Apple Silicon + Intel Mac)'
 
     runs-on: ${{ matrix.platform }}
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
