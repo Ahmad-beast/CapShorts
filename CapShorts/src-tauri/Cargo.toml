@@ -1,6 +1,6 @@
 [package]
 name = "capshorts"
-version = "1.2.0"
+version = "1.2.1"
 description = "CapShorts - Desktop AI Video Editor"
 authors = ["Ali Raza"]
 edition = "2021"

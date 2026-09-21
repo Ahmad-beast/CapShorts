@@ -5,6 +5,14 @@ Powered by FastAPI, Faster-Whisper, native FFmpeg, and Master Groq Cloud Turbo P
 
 import os
 import sys
+import io
+
+# Fix PyInstaller windowed NoneType stdout/stderr bug (causes uvicorn logging crash)
+if sys.stdout is None:
+    sys.stdout = io.StringIO()
+if sys.stderr is None:
+    sys.stderr = io.StringIO()
+
 import uuid
 import time
 import shutil
@@ -1052,5 +1060,6 @@ def download_file(filename: str):
 if __name__ == "__main__":
     import uvicorn
     threading.Thread(target=get_whisper_model, daemon=True).start()
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=False)
+    uvicorn.run(app, host="127.0.0.1", port=8000, reload=False, log_config=None)
+
 
