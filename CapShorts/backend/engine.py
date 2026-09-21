@@ -19,6 +19,12 @@ import shutil
 import wave
 import subprocess
 import threading
+
+# Eliminate all pop-up black console/terminal windows for FFmpeg on Windows
+SUBPROCESS_FLAGS = 0
+if sys.platform == "win32":
+    SUBPROCESS_FLAGS = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
+
 from typing import List, Dict, Any, Optional, Tuple
 from pydantic import BaseModel
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks
@@ -60,7 +66,7 @@ def probe_video_dimensions(video_path: str) -> Tuple[int, int]:
             "-of", "csv=s=x:p=0",
             video_path
         ]
-        out = subprocess.check_output(cmd, stderr=subprocess.PIPE, text=True).strip()
+        out = subprocess.check_output(cmd, stderr=subprocess.PIPE, text=True, creationflags=SUBPROCESS_FLAGS).strip()
         if "x" in out:
             w_str, h_str = out.split("x", 1)
             return int(w_str), int(h_str)
@@ -162,7 +168,7 @@ def check_ffmpeg() -> bool:
     """Checks whether ffmpeg executable is available in PATH or local directory."""
     ffmpeg_bin = get_ffmpeg_bin()
     try:
-        res = subprocess.run([ffmpeg_bin, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        res = subprocess.run([ffmpeg_bin, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=SUBPROCESS_FLAGS)
         return res.returncode == 0
     except Exception:
         alt_paths = [
@@ -256,7 +262,7 @@ def detect_hardware_encoder() -> Tuple[str, List[str]]:
             return CACHED_HW_ENCODER
         try:
             test_cmd = [ffmpeg_bin, "-f", "lavfi", "-i", "color=c=black:s=256x256:d=0.05"] + args + ["-f", "null", "-"]
-            res = subprocess.run(test_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=3)
+            res = subprocess.run(test_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=3, creationflags=SUBPROCESS_FLAGS)
             if res.returncode == 0:
                 print(f"[engine] GPU Hardware Encoder verified: {name}")
                 CACHED_HW_ENCODER = (name, args)
@@ -353,7 +359,7 @@ def run_transcribe_job(
                 "-vn", "-ar", "16000", "-ac", "1", "-b:a", "32k",
                 audio_mp3
             ]
-            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=SUBPROCESS_FLAGS)
 
             TRANSCRIBE_JOBS[task_id] = {
                 "progress": 55,
@@ -421,7 +427,7 @@ def run_transcribe_job(
                     "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le",
                     audio_wav
                 ]
-                subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=SUBPROCESS_FLAGS)
             else:
                 audio_wav = target_video
 
@@ -794,7 +800,7 @@ def run_export_job(task_id: str, payload: ExportPayload):
                 ]
 
         if check_ffmpeg():
-            proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=SUBPROCESS_FLAGS)
             if proc.returncode != 0:
                 print(f"[export] FFmpeg error ({hw_encoder_name}): {proc.stderr.decode('utf-8', errors='ignore')}")
                 # Fallback to software libx264 if hardware encoder fails during render
@@ -808,7 +814,7 @@ def run_export_job(task_id: str, payload: ExportPayload):
                 else:
                     fb_cmd += ["-vf", f"ass='{escaped_ass}'"]
                 fb_cmd += ["-c:v", "libx264", "-preset", "fast", "-crf", "18", "-c:a", "aac", output_file]
-                proc2 = subprocess.run(fb_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                proc2 = subprocess.run(fb_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=SUBPROCESS_FLAGS)
                 if proc2.returncode != 0:
                     raise RuntimeError("FFmpeg render failed on both hardware and software encoders.")
         else:
@@ -886,7 +892,7 @@ def detect_silence(payload: SilenceDetectPayload):
     ]
 
     try:
-        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, errors="ignore", timeout=45)
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, errors="ignore", timeout=45, creationflags=SUBPROCESS_FLAGS)
         stderr_output = proc.stderr
 
         silence_regions = []
@@ -965,7 +971,7 @@ def split_video_segments(payload: VideoSplitPayload):
                 "-avoid_negative_ts", "make_zero",
                 out_path
             ]
-            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20, creationflags=SUBPROCESS_FLAGS)
             if res.returncode != 0:
                 raise Exception(f"FFmpeg copy error: {res.stderr.decode('utf-8', errors='ignore')}")
         else:
@@ -983,7 +989,7 @@ def split_video_segments(payload: VideoSplitPayload):
                     "-avoid_negative_ts", "make_zero",
                     chunk_path
                 ]
-                res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20)
+                res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=20, creationflags=SUBPROCESS_FLAGS)
                 if res.returncode == 0 and os.path.exists(chunk_path):
                     chunk_files.append(chunk_path)
 
@@ -1006,7 +1012,7 @@ def split_video_segments(payload: VideoSplitPayload):
                 "-c", "copy",
                 out_path
             ]
-            res = subprocess.run(concat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
+            res = subprocess.run(concat_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30, creationflags=SUBPROCESS_FLAGS)
 
             # Cleanup temp chunk files
             for cf in chunk_files:
