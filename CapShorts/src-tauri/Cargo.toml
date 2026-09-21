@@ -1,12 +1,12 @@
 [package]
-name = "opencaption"
-version = "1.0.0"
-description = "OpenCaption - Desktop AI Video Suite"
-authors = ["OpenCaption Contributors"]
+name = "capshorts"
+version = "1.0.1"
+description = "CapShorts - Desktop AI Video Editor"
+authors = ["Ali Raza"]
 edition = "2021"
 
 [lib]
-name = "opencaption_lib"
+name = "capshorts_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

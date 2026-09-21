@@ -1,14 +1,13 @@
-// OpenCaption Desktop - Rust Core Engine & Tauri v2 Shell
-use tauri::{AppHandle, Manager};
+// CapShorts Desktop - Rust Core Engine & Tauri v2 Shell
 
 #[tauri::command]
 fn greet(name: &str) -> String {
-    format!("Hello, {}! OpenCaption AI engine is ready.", name)
+    format!("Hello, {}! CapShorts AI engine is ready.", name)
 }
 
 #[tauri::command]
-async fn launch_python_sidecar(app: AppHandle) -> Result<String, String> {
-    println!("[tauri] OpenCaption sidecar supervisor initialized.");
+async fn launch_python_sidecar() -> Result<String, String> {
+    println!("[tauri] CapShorts sidecar supervisor initialized.");
     Ok("Sidecar daemon managed".into())
 }
 
@@ -18,10 +17,10 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![greet, launch_python_sidecar])
-        .setup(|app| {
-            println!("[tauri] OpenCaption Desktop App launched successfully.");
+        .setup(|_app| {
+            println!("[tauri] CapShorts Desktop App launched successfully.");
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("error while running OpenCaption application");
+        .expect("error while running CapShorts application");
 }
