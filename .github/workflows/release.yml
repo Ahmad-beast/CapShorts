@@ -129,7 +129,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: ${{ runner.os == 'macOS' && 'x86_64-apple-darwin,aarch64-apple-darwin' || matrix.target }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -146,6 +146,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: CapShorts
+          args: ${{ runner.os == 'macOS' && '--target universal-apple-darwin' || '' }}
           tagName: ${{ github.ref_name }}
           releaseName: 'CapShorts ${{ github.ref_name }}'
           releaseBody: |
