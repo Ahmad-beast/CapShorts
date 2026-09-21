@@ -19,8 +19,8 @@ jobs:
             target: 'x86_64-pc-windows-msvc'
             os_name: 'Windows'
           - platform: 'macos-14'
-            target: 'aarch64-apple-darwin'
-            os_name: 'macOS (Apple Silicon M1/M2/M3/M4)'
+            target: 'universal-apple-darwin'
+            os_name: 'macOS (Universal: Apple Silicon + Intel Mac)'
 
     runs-on: ${{ matrix.platform }}
     steps:
