@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Subtitle Outline Text Stroke Simulation */
+  .stroke-black-heavy {
+    -webkit-text-stroke: 4px black;
+    paint-order: stroke fill;
+  }
+  .stroke-black-medium {
+    -webkit-text-stroke: 2.5px black;
+    paint-order: stroke fill;
+  }
+  .stroke-black-light {
+    -webkit-text-stroke: 1.5px black;
+    paint-order: stroke fill;
+  }
+}
+
+/* Custom linear style scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(24, 24, 27, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(82, 82, 91, 0.7);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(113, 113, 122, 0.9);
+}
+
+/* Custom font fallback styles */
+@font-face {
+  font-family: 'Komika Axis';
+  src: local('Komika Axis'), local('Impact'), sans-serif;
+}
+@font-face {
+  font-family: 'The Bold Font';
+  src: local('The Bold Font'), local('Impact'), sans-serif;
+}
+
+/* Submagic-Style High-Impact Pop & Bounce Keyframe for Viral Emojis */
+@keyframes emojiPopBounce {
+  0% {
+    transform: scale(0.3) translateY(18px) rotate(-12deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.38) translateY(-10px) rotate(8deg);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(0.92) translateY(3px) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1.15) translateY(0px) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-emoji-pop {
+  animation: emojiPopBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
