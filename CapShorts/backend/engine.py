@@ -25,11 +25,26 @@ from transliterate import transliterate_transcript, transliterate_word
 
 app = FastAPI(title="OpenCaption AI Engine", version="1.4.0")
 
+def get_ffmpeg_bin() -> str:
+    """Resolves platform-appropriate FFmpeg executable."""
+    for name in ["ffmpeg.exe", "ffmpeg"]:
+        p = os.path.join(BIN_DIR, name)
+        if os.path.exists(p):
+            return p
+    return "ffmpeg"
+
+def get_ffprobe_bin() -> str:
+    """Resolves platform-appropriate FFprobe executable."""
+    for name in ["ffprobe.exe", "ffprobe"]:
+        p = os.path.join(BIN_DIR, name)
+        if os.path.exists(p):
+            return p
+    return "ffprobe"
+
 def probe_video_dimensions(video_path: str) -> Tuple[int, int]:
     """Probes video width and height using ffprobe."""
     try:
-        bin_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
-        ffprobe_bin = os.path.join(bin_dir, "ffprobe.exe") if os.path.exists(os.path.join(bin_dir, "ffprobe.exe")) else "ffprobe"
+        ffprobe_bin = get_ffprobe_bin()
         cmd = [
             ffprobe_bin, "-v", "error",
             "-select_streams", "v:0",
@@ -137,14 +152,18 @@ def save_master_groq_key(new_key: str):
 
 def check_ffmpeg() -> bool:
     """Checks whether ffmpeg executable is available in PATH or local directory."""
+    ffmpeg_bin = get_ffmpeg_bin()
     try:
-        res = subprocess.run(["ffmpeg", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        res = subprocess.run([ffmpeg_bin, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return res.returncode == 0
     except Exception:
         alt_paths = [
             r"C:\ProgramData\chocolatey\bin\ffmpeg.exe",
             r"C:\ffmpeg\bin\ffmpeg.exe",
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin", "ffmpeg.exe")
+            "/opt/homebrew/bin/ffmpeg",
+            "/usr/local/bin/ffmpeg",
+            os.path.join(BIN_DIR, "ffmpeg.exe"),
+            os.path.join(BIN_DIR, "ffmpeg")
         ]
         for p in alt_paths:
             if os.path.exists(p):
@@ -212,9 +231,10 @@ def detect_hardware_encoder() -> Tuple[str, List[str]]:
     if CACHED_HW_ENCODER is not None:
         return CACHED_HW_ENCODER
 
-    ffmpeg_bin = os.path.join(BIN_DIR, "ffmpeg.exe") if os.path.exists(os.path.join(BIN_DIR, "ffmpeg.exe")) else "ffmpeg"
+    ffmpeg_bin = get_ffmpeg_bin()
 
     candidates = [
+        ("h264_videotoolbox", ["-c:v", "h264_videotoolbox", "-b:v", "6000k"]),
         ("h264_nvenc", ["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr"]),
         ("h264_qsv", ["-c:v", "h264_qsv", "-global_quality", "23"]),
         ("h264_amf", ["-c:v", "h264_amf", "-quality", "speed"]),
@@ -294,7 +314,7 @@ def run_transcribe_job(
     Background worker executing either ultra-fast Groq Cloud AI (~2 seconds)
     with Key Pool Auto-Rotation, or local offline Faster-Whisper.
     """
-    ffmpeg_bin = os.path.join(BIN_DIR, "ffmpeg.exe") if os.path.exists(os.path.join(BIN_DIR, "ffmpeg.exe")) else "ffmpeg"
+    ffmpeg_bin = get_ffmpeg_bin()
 
     # Assemble Key Pool (Client Key + Backend Master Keys)
     key_pool = []
@@ -651,7 +671,7 @@ def run_export_job(task_id: str, payload: ExportPayload):
 
         input_video = payload.video_path
         output_file = os.path.join(OUTPUT_DIR, f"export_{task_id}_{payload.output_filename}")
-        ffmpeg_bin = os.path.join(BIN_DIR, "ffmpeg.exe") if os.path.exists(os.path.join(BIN_DIR, "ffmpeg.exe")) else "ffmpeg"
+        ffmpeg_bin = get_ffmpeg_bin()
 
         if not input_video or not os.path.exists(input_video):
             input_video = os.path.join(TEMP_DIR, f"blank_{task_id}.mp4")
@@ -845,7 +865,7 @@ def detect_silence(payload: SilenceDetectPayload):
     Takes ~1.5 seconds for 10 minutes of video.
     Returns detected silence gaps [{start, end, duration}] and total seconds saved.
     """
-    ffmpeg_bin = os.path.join(BIN_DIR, "ffmpeg.exe") if os.path.exists(os.path.join(BIN_DIR, "ffmpeg.exe")) else "ffmpeg"
+    ffmpeg_bin = get_ffmpeg_bin()
     video_file = resolve_video_file(payload.video_path)
             
     thresh = payload.noise_threshold_db or -30.0
@@ -916,7 +936,7 @@ def split_video_segments(payload: VideoSplitPayload):
     if not payload.segments:
         raise HTTPException(status_code=400, detail="No segments provided for splitting")
 
-    ffmpeg_bin = os.path.join(BIN_DIR, "ffmpeg.exe") if os.path.exists(os.path.join(BIN_DIR, "ffmpeg.exe")) else "ffmpeg"
+    ffmpeg_bin = get_ffmpeg_bin()
     video_file = resolve_video_file(payload.video_path)
 
     out_name = payload.output_filename or f"split_{uuid.uuid4().hex[:8]}.mp4"

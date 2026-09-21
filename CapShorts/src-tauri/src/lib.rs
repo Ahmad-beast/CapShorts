@@ -23,17 +23,25 @@ pub fn run() {
             if let Ok(resource_dir) = app.path().resource_dir() {
                 let candidate_paths = [
                     resource_dir.join("backend-engine.exe"),
+                    resource_dir.join("backend-engine"),
                     resource_dir.join("binaries").join("backend-engine.exe"),
+                    resource_dir.join("binaries").join("backend-engine"),
                     resource_dir.join("CapShorts").join("backend-engine.exe"),
+                    resource_dir.join("CapShorts").join("backend-engine"),
                     std::env::current_exe()
                         .ok()
                         .and_then(|p| p.parent().map(|d| d.join("backend-engine.exe")))
+                        .unwrap_or_default(),
+                    std::env::current_exe()
+                        .ok()
+                        .and_then(|p| p.parent().map(|d| d.join("backend-engine")))
                         .unwrap_or_default(),
                 ];
 
                 for engine_path in &candidate_paths {
                     if engine_path.exists() {
                         println!("[tauri] Spawning AI Backend: {:?}", engine_path);
+                        
                         #[cfg(target_os = "windows")]
                         {
                             use std::os::windows::process::CommandExt;
@@ -46,7 +54,23 @@ pub fn run() {
                                 if let Some(state) = app.try_state::<BackendProcess>() {
                                     *state.0.lock().unwrap() = Some(child);
                                 }
-                                println!("[tauri] Backend daemon running in background.");
+                                println!("[tauri] Windows backend daemon running in background.");
+                                break;
+                            }
+                        }
+
+                        #[cfg(not(target_os = "windows"))]
+                        {
+                            use std::process::Stdio;
+                            if let Ok(child) = Command::new(engine_path)
+                                .stdout(Stdio::null())
+                                .stderr(Stdio::null())
+                                .spawn()
+                            {
+                                if let Some(state) = app.try_state::<BackendProcess>() {
+                                    *state.0.lock().unwrap() = Some(child);
+                                }
+                                println!("[tauri] macOS/Unix backend daemon running in background.");
                                 break;
                             }
                         }

@@ -1,4 +1,4 @@
-name: Build & Release Windows Installer
+name: Build & Release Multi-Platform Installers
 
 on:
   push:
@@ -9,8 +9,23 @@ permissions:
   contents: write
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  release:
+    name: Build & Release (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest'
+            target: 'x86_64-pc-windows-msvc'
+            os_name: 'Windows'
+          - platform: 'macos-14'
+            target: 'aarch64-apple-darwin'
+            os_name: 'macOS (Apple Silicon M1/M2/M3/M4)'
+          - platform: 'macos-13'
+            target: 'x86_64-apple-darwin'
+            os_name: 'macOS (Intel x64)'
+
+    runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,11 +42,13 @@ jobs:
           pip install -r CapShorts/backend/requirements.txt
           pip install pyinstaller
 
-      - name: Download & Setup Standalone FFmpeg binaries
+      # Windows: Download portable FFmpeg
+      - name: Download & Setup Windows FFmpeg binaries
+        if: runner.os == 'Windows'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "CapShorts/src-tauri/binaries/bin" | Out-Null
-          Write-Host "Downloading portable FFmpeg..."
+          Write-Host "Downloading portable FFmpeg for Windows..."
           Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip" -OutFile "ffmpeg.zip"
           Expand-Archive -Path "ffmpeg.zip" -DestinationPath "ffmpeg_extracted" -Force
           $ffmpegPath = Get-ChildItem -Path "ffmpeg_extracted" -Recurse -Filter "ffmpeg.exe" | Select-Object -First 1 -ExpandProperty FullName
@@ -40,7 +57,20 @@ jobs:
           Copy-Item $ffprobePath "CapShorts/src-tauri/binaries/bin/ffprobe.exe"
           Write-Host "FFmpeg binaries ready in CapShorts/src-tauri/binaries/bin!"
 
-      - name: Compile Standalone Backend Engine with PyInstaller
+      # macOS: Install portable FFmpeg
+      - name: Download & Setup macOS FFmpeg binaries
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p CapShorts/src-tauri/binaries/bin
+          brew install ffmpeg
+          cp $(which ffmpeg) CapShorts/src-tauri/binaries/bin/ffmpeg
+          cp $(which ffprobe) CapShorts/src-tauri/binaries/bin/ffprobe
+          chmod +x CapShorts/src-tauri/binaries/bin/*
+          echo "macOS FFmpeg binaries ready in CapShorts/src-tauri/binaries/bin!"
+
+      # Compile Standalone Backend Engine (Windows)
+      - name: Compile Backend Engine with PyInstaller (Windows)
+        if: runner.os == 'Windows'
         shell: pwsh
         run: |
           cd CapShorts/backend
@@ -63,17 +93,46 @@ jobs:
             --hidden-import "transliterate" `
             engine.py
           cd ../..
-          # Copy single-file executable to Tauri binaries folder
           Copy-Item -Path "CapShorts/backend/dist/backend-engine.exe" -Destination "CapShorts/src-tauri/binaries/backend-engine.exe" -Force
-          Write-Host "Standalone single-file backend engine ready in Tauri binaries!"
+          Write-Host "Standalone Windows backend engine ready!"
+
+      # Compile Standalone Backend Engine (macOS)
+      - name: Compile Backend Engine with PyInstaller (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd CapShorts/backend
+          pyinstaller --noconfirm --onefile --windowed \
+            --name "backend-engine" \
+            --hidden-import "uvicorn" \
+            --hidden-import "uvicorn.logging" \
+            --hidden-import "uvicorn.loops" \
+            --hidden-import "uvicorn.loops.auto" \
+            --hidden-import "uvicorn.protocols" \
+            --hidden-import "uvicorn.protocols.http" \
+            --hidden-import "uvicorn.protocols.http.auto" \
+            --hidden-import "uvicorn.lifespan" \
+            --hidden-import "uvicorn.lifespan.on" \
+            --hidden-import "engine" \
+            --hidden-import "broll" \
+            --hidden-import "clip_generator" \
+            --hidden-import "groq_transcribe" \
+            --hidden-import "subtitle_gen" \
+            --hidden-import "transliterate" \
+            engine.py
+          cd ../..
+          cp CapShorts/backend/dist/backend-engine CapShorts/src-tauri/binaries/backend-engine
+          chmod +x CapShorts/src-tauri/binaries/backend-engine
+          echo "Standalone macOS backend engine ready!"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -84,7 +143,7 @@ jobs:
         working-directory: CapShorts/frontend
         run: npm ci
 
-      - name: Build Tauri app with Bundled AI Engine
+      - name: Build Tauri app (${{ matrix.os_name }})
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -93,17 +152,21 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: 'CapShorts ${{ github.ref_name }}'
           releaseBody: |
-            ## 🚀 CapShorts ${{ github.ref_name }} (Standalone Edition)
+            ## 🚀 CapShorts ${{ github.ref_name }} — All-in-One AI Video Editor
 
-            ### 📦 Complete All-in-One Desktop AI Video Editor
-            This release bundles the **complete Python AI Engine**, **FFmpeg native acceleration**, and the **modern UI** into a single Windows installer!
+            Official standalone release for **Windows** and **macOS (Apple Silicon & Intel)**!
 
-            - ✅ **Zero Setup**: No Python, Node.js, or FFmpeg installation required on your PC.
-            - ✅ **Auto-Start AI Engine**: Starts automatically on app launch and cleanly terminates on exit.
-            - ✅ **Ultra-Fast Subtitles**: Word-accurate animated captions & viral highlights in seconds.
-            - ✅ **Interactive Timeline**: Blade cutter, instant silence/dead-air remover, and hardware-accelerated exports.
+            ### ✨ Key Features
+            - ⚡ **Auto Captions & Subtitles**: Word-accurate animated captions in 2-3 seconds with Groq Turbo Cloud.
+            - ✂️ **Interactive Razor Tool**: Split video clips and subtitles instantly at playhead timestamp.
+            - 🔇 **One-Click Dead Air Remover**: Automatic ripple-cut silence removal across all tracks.
+            - 🎬 **AI Viral Shorts Detection**: Auto-detects 25-60s engaging clips with virality scores.
+            - 🚀 **Hardware Accelerated Export**: NVENC, QuickSync, AMD AMF, and Apple VideoToolbox.
+            - 📦 **Zero Dependencies**: Python AI daemon and FFmpeg are bundled directly inside the installer!
 
-            ### 📥 Download Installer
-            Download `CapShorts_${{ github.ref_name }}_x64-setup.exe` below and double-click to install!
+            ### 📥 Downloads
+            - **Windows**: `CapShorts_${{ github.ref_name }}_x64-setup.exe`
+            - **macOS (Apple Silicon M1/M2/M3/M4)**: `CapShorts_${{ github.ref_name }}_aarch64.dmg`
+            - **macOS (Intel Core i5/i7/i9)**: `CapShorts_${{ github.ref_name }}_x64.dmg`
           releaseDraft: false
           prerelease: false
