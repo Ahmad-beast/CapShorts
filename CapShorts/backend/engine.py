@@ -53,13 +53,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-BIN_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
+# Base directory detection (handles PyInstaller standalone .exe as well as dev script)
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
+    # PyInstaller extracted temp folder for internal assets
+    MEIPASS_DIR = getattr(sys, '_MEIPASS', BASE_DIR)
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    MEIPASS_DIR = BASE_DIR
+
+BIN_DIR = os.path.join(BASE_DIR, "bin")
+if not os.path.exists(BIN_DIR) and os.path.exists(os.path.join(MEIPASS_DIR, "bin")):
+    BIN_DIR = os.path.join(MEIPASS_DIR, "bin")
+
 if os.path.exists(BIN_DIR):
     os.environ["PATH"] = BIN_DIR + os.pathsep + os.environ.get("PATH", "")
 
-TEMP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp")
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outputs")
-ENV_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+TEMP_DIR = os.path.join(BASE_DIR, "temp")
+OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
+ENV_FILE = os.path.join(BASE_DIR, ".env")
 os.makedirs(TEMP_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -1020,4 +1032,5 @@ def download_file(filename: str):
 if __name__ == "__main__":
     import uvicorn
     threading.Thread(target=get_whisper_model, daemon=True).start()
-    uvicorn.run("engine:app", host="127.0.0.1", port=8000, reload=False)
+    uvicorn.run(app, host="127.0.0.1", port=8000, reload=False)
+

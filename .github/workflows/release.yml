@@ -15,6 +15,58 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies & PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r CapShorts/backend/requirements.txt
+          pip install pyinstaller
+
+      - name: Download & Setup Standalone FFmpeg binaries
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "CapShorts/src-tauri/binaries/bin" | Out-Null
+          Write-Host "Downloading portable FFmpeg..."
+          Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip" -OutFile "ffmpeg.zip"
+          Expand-Archive -Path "ffmpeg.zip" -DestinationPath "ffmpeg_extracted" -Force
+          $ffmpegPath = Get-ChildItem -Path "ffmpeg_extracted" -Recurse -Filter "ffmpeg.exe" | Select-Object -First 1 -ExpandProperty FullName
+          $ffprobePath = Get-ChildItem -Path "ffmpeg_extracted" -Recurse -Filter "ffprobe.exe" | Select-Object -First 1 -ExpandProperty FullName
+          Copy-Item $ffmpegPath "CapShorts/src-tauri/binaries/bin/ffmpeg.exe"
+          Copy-Item $ffprobePath "CapShorts/src-tauri/binaries/bin/ffprobe.exe"
+          Write-Host "FFmpeg binaries ready in CapShorts/src-tauri/binaries/bin!"
+
+      - name: Compile Standalone Backend Engine with PyInstaller
+        shell: pwsh
+        run: |
+          cd CapShorts/backend
+          pyinstaller --noconfirm --onedir --windowed `
+            --name "backend-engine" `
+            --hidden-import "uvicorn" `
+            --hidden-import "uvicorn.logging" `
+            --hidden-import "uvicorn.loops" `
+            --hidden-import "uvicorn.loops.auto" `
+            --hidden-import "uvicorn.protocols" `
+            --hidden-import "uvicorn.protocols.http" `
+            --hidden-import "uvicorn.protocols.http.auto" `
+            --hidden-import "uvicorn.lifespan" `
+            --hidden-import "uvicorn.lifespan.on" `
+            --hidden-import "engine" `
+            --hidden-import "broll" `
+            --hidden-import "clip_generator" `
+            --hidden-import "groq_transcribe" `
+            --hidden-import "subtitle_gen" `
+            --hidden-import "transliterate" `
+            engine.py
+          cd ../..
+          # Copy compiled backend-engine directory to Tauri binaries resource folder
+          Copy-Item -Path "CapShorts/backend/dist/backend-engine/*" -Destination "CapShorts/src-tauri/binaries/" -Recurse -Force
+          Write-Host "Backend engine compiled and copied to Tauri binaries!"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -32,7 +84,7 @@ jobs:
         working-directory: CapShorts/frontend
         run: npm ci
 
-      - name: Build Tauri app
+      - name: Build Tauri app with Bundled AI Engine
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -41,12 +93,17 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: 'CapShorts ${{ github.ref_name }}'
           releaseBody: |
-            ## CapShorts ${{ github.ref_name }}
+            ## 🚀 CapShorts ${{ github.ref_name }} (Standalone Edition)
 
-            ### 📥 Download
-            Download the Windows installer (.exe / .msi) from the assets below.
+            ### 📦 Complete All-in-One Desktop AI Video Editor
+            This release bundles the **complete Python AI Engine**, **FFmpeg native acceleration**, and the **modern UI** into a single Windows installer!
 
-            ### ⚡ What's New
-            See the [commit log](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }}) for details.
+            - ✅ **Zero Setup**: No Python, Node.js, or FFmpeg installation required on your PC.
+            - ✅ **Auto-Start AI Engine**: Starts automatically on app launch and cleanly terminates on exit.
+            - ✅ **Ultra-Fast Subtitles**: Word-accurate animated captions & viral highlights in seconds.
+            - ✅ **Interactive Timeline**: Blade cutter, instant silence/dead-air remover, and hardware-accelerated exports.
+
+            ### 📥 Download Installer
+            Download `CapShorts_${{ github.ref_name }}_x64-setup.exe` below and double-click to install!
           releaseDraft: false
           prerelease: false
