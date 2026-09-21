@@ -4,7 +4,7 @@
   "private": true,
   "description": "CapShorts - Desktop AI Video Editor",
   "scripts": {
-    "dev": "npm run dev --prefix OpenCaption/frontend",
-    "build": "npm run build --prefix OpenCaption/frontend"
+    "dev": "npm run dev --prefix CapShorts/frontend",
+    "build": "npm run build --prefix CapShorts/frontend"
   }
 }

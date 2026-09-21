@@ -114,7 +114,7 @@ This automatically boots the Python AI backend on port `8000`, starts the Vite f
 
 ### Option 2: Manual Frontend Development
 ```bash
-cd OpenCaption/frontend
+cd CapShorts/frontend
 npm install
 npm run dev
 ```
@@ -122,7 +122,7 @@ Open `http://localhost:5173`.
 
 ### Option 3: Backend Daemon Setup
 ```bash
-cd OpenCaption/backend
+cd CapShorts/backend
 python -m venv venv
 call venv\Scripts\activate.bat
 pip install -r requirements.txt
