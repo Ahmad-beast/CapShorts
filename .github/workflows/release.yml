@@ -44,7 +44,7 @@ jobs:
         shell: pwsh
         run: |
           cd CapShorts/backend
-          pyinstaller --noconfirm --onedir --windowed `
+          pyinstaller --noconfirm --onefile --windowed `
             --name "backend-engine" `
             --hidden-import "uvicorn" `
             --hidden-import "uvicorn.logging" `
@@ -63,9 +63,9 @@ jobs:
             --hidden-import "transliterate" `
             engine.py
           cd ../..
-          # Copy compiled backend-engine directory to Tauri binaries resource folder
-          Copy-Item -Path "CapShorts/backend/dist/backend-engine/*" -Destination "CapShorts/src-tauri/binaries/" -Recurse -Force
-          Write-Host "Backend engine compiled and copied to Tauri binaries!"
+          # Copy single-file executable to Tauri binaries folder
+          Copy-Item -Path "CapShorts/backend/dist/backend-engine.exe" -Destination "CapShorts/src-tauri/binaries/backend-engine.exe" -Force
+          Write-Host "Standalone single-file backend engine ready in Tauri binaries!"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
