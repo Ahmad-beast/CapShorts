@@ -10,17 +10,12 @@ Generate word-accurate animated captions, extract viral vertical shorts, remove 
 
 [![Release](https://img.shields.io/github/v/release/thealiraza2/CapShorts?style=for-the-badge&color=00f2fe&logo=github)](https://github.com/thealiraza2/CapShorts/releases/latest)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20(Universal)-4facfe?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/thealiraza2/CapShorts/releases/latest)
-[![Website](https://img.shields.io/badge/Website-thealiraza2.github.io%2FCapShorts-4338ca?style=for-the-badge&logo=googlechrome&logoColor=white)](https://thealiraza2.github.io/CapShorts/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-00c6ff?style=for-the-badge)](./LICENSE)
 [![Zero Setup](https://img.shields.io/badge/Setup-Zero%20Dependencies%20(Bundled)-6ee7b7?style=for-the-badge&logo=electron)](https://github.com/thealiraza2/CapShorts/releases/latest)
 
 <br />
 
-[![Visit Website](https://img.shields.io/badge/🌐%20Explore%20Live%20Website%20%26%20Interactive%20Studio-thealiraza2.github.io%2FCapShorts-00f0ff?style=for-the-badge&logo=googlechrome&logoColor=black)](https://thealiraza2.github.io/CapShorts/)
-
-<br />
-
-[🌐 Official Website](https://thealiraza2.github.io/CapShorts/) • [📥 Download for Windows & Mac](#-downloads) • [✨ Features](#-why-capshorts) • [⚡ Quickstart](#-quickstart--local-development) • [⌨️ Shortcuts](#%EF%B8%8F-keyboard-shortcuts)
+[📥 Download Installers](#-downloads) • [✨ Features](#-why-capshorts) • [📊 Comparison](#-feature-comparison) • [⚡ Quickstart](#-quickstart--local-development) • [⌨️ Shortcuts](#%EF%B8%8F-keyboard-shortcuts)
 
 ---
 
