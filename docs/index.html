@@ -11,12 +11,12 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="CapShorts — Free Desktop AI Video Editor">
   <meta property="og:description" content="Generate word-accurate animated captions, extract viral shorts, remove dead air, and export studio-quality videos with zero subscriptions.">
-  <meta property="og:image" content="./assets/screenshot_verified.png">
+  <meta property="og:image" content="./assets/screenshot_export.png">
   
   <!-- Modern Inter & JetBrains Mono Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="./styles.css">
 </head>
@@ -26,11 +26,19 @@
   <header class="site-navbar">
     <div class="container nav-content">
       <a href="#" class="brand-link">
-        <div class="brand-logo-badge">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-          </svg>
-        </div>
+        <!-- Sleek Modern Minimalist SVG Vector Logo -->
+        <svg class="brand-logo-svg" width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="url(#nav-logo-grad)"/>
+          <path d="M9 9H7C5.89543 9 5 9.89543 5 11V21C5 22.1046 5.89543 23 7 23H9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M23 9H25C26.1046 9 27 9.89543 27 11V21C27 22.1046 26.1046 23 25 23H23" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M13 11.5L20.5 16L13 20.5V11.5Z" fill="white"/>
+          <defs>
+            <linearGradient id="nav-logo-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#6366F1"/>
+              <stop stop-color="#4338CA"/>
+            </linearGradient>
+          </defs>
+        </svg>
         <span>CapShorts</span>
         <span class="brand-version-tag">v1.0.0</span>
       </a>
@@ -111,24 +119,190 @@
         </div>
       </div>
 
-      <!-- Hero Product Preview Mockup Shell (Mac-Style Window, Zero Stock Photos) -->
+      <!-- Hero Product Preview: Realistic Code-Rendered Desktop Editor UI (No Stock Photos) -->
       <div class="hero-mockup-wrapper">
         <div class="mockup-window-shell">
+          
+          <!-- Mac-Style Window Title Bar -->
           <div class="mockup-header-bar">
             <div class="mockup-traffic-dots">
               <span class="dot-control dot-close"></span>
               <span class="dot-control dot-minimize"></span>
               <span class="dot-control dot-expand"></span>
             </div>
-            <span class="mockup-window-title">CapShorts — Desktop AI Studio</span>
+            <span class="mockup-window-title">CapShorts — Desktop AI Video Studio (v1.0.0)</span>
             <div class="mockup-status-badge">
               <span class="pill-status-dot"></span>
               <span>DAEMON ONLINE (LOCAL)</span>
             </div>
           </div>
-          <div class="mockup-screen-body">
-            <img src="./assets/screenshot_verified.png" alt="CapShorts Desktop Studio Interface" class="mockup-screen-img">
+
+          <!-- Internal Editor Toolbar -->
+          <div class="app-internal-toolbar">
+            <div class="app-tool-btn-group">
+              <button class="app-tool-btn active">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7 18 3-7 7-3L3 3z"/></svg>
+                <span>Select [V]</span>
+              </button>
+              <button class="app-tool-btn">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
+                <span>Razor [B]</span>
+              </button>
+              <button class="app-tool-btn">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                <span>Dead Air Ripple Cut</span>
+              </button>
+            </div>
+
+            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: #a1a1aa; display: flex; align-items: center; gap: 0.75rem;">
+              <span>PROJECT: <strong style="color: #ffffff;">Viral_Short_01.mp4</strong></span>
+              <span style="color: var(--accent); background: rgba(99, 102, 241, 0.15); padding: 1px 6px; border-radius: 4px;">00:04.28 / 00:30.00</span>
+            </div>
+
+            <div class="app-tool-btn-group">
+              <span class="app-tool-btn" style="background: rgba(16, 185, 129, 0.1); color: var(--emerald); border-color: rgba(16, 185, 129, 0.3);">
+                ⚡ NVENC 60 FPS
+              </span>
+            </div>
           </div>
+
+          <!-- Main Workspace (Split: Left Video Canvas, Right Transcript Blocks) -->
+          <div class="app-workspace-split">
+            
+            <!-- Left: 9:16 Vertical Video Viewport Previewing Animated Captions -->
+            <div class="app-video-canvas-panel">
+              <div class="app-phone-preview-container">
+                <!-- Looped ambient lighting gradient simulation -->
+                <div class="preview-backdrop-media"></div>
+
+                <!-- Speaker silhouette avatar -->
+                <div class="preview-speaker-silhouette">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                </div>
+
+                <!-- Live Subtitle Render over video -->
+                <div class="preview-captions-mockup">
+                  <span class="preview-hormozi-word">STOP PAYING</span>
+                  <span class="preview-hormozi-word" style="color: #ffffff; background: #0284c7; padding: 1px 4px; border-radius: 3px;">$30/MO</span>
+                  <span class="preview-hormozi-word">FOR CLOUD APPS</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 0.65rem; font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); display: flex; gap: 1rem;">
+                <span>FORMAT: 9:16 VERTICAL (1080x1920)</span>
+                <span>SAFE ZONE: ACTIVE</span>
+              </div>
+            </div>
+
+            <!-- Right: Transcript Blocks with Millisecond Timestamps -->
+            <div class="app-transcript-panel">
+              <div class="transcript-panel-header">
+                <span>SPEECH TRANSCRIPTION (WHISPER)</span>
+                <span style="color: var(--emerald);">SYNCED [0.00ms]</span>
+              </div>
+
+              <div class="transcript-items-list">
+                <div class="transcript-row-entry">
+                  <span class="transcript-timecode">00:00.200</span>
+                  <span class="transcript-text">"Stop paying"</span>
+                </div>
+
+                <div class="transcript-row-entry active">
+                  <span class="transcript-timecode">00:01.120</span>
+                  <span class="transcript-text">"$30/month for"</span>
+                  <span class="transcript-kw-tag">KEYWORD ★</span>
+                </div>
+
+                <div class="transcript-row-entry">
+                  <span class="transcript-timecode">00:02.480</span>
+                  <span class="transcript-text">"cloud caption apps"</span>
+                </div>
+
+                <div class="transcript-row-entry">
+                  <span class="transcript-timecode">00:03.920</span>
+                  <span class="transcript-text">"when CapShorts runs"</span>
+                </div>
+
+                <div class="transcript-row-entry active">
+                  <span class="transcript-timecode">00:05.100</span>
+                  <span class="transcript-text">"100% on your machine."</span>
+                  <span class="transcript-kw-tag">KEYWORD ★</span>
+                </div>
+
+                <div class="transcript-row-entry" style="opacity: 0.6; border-style: dashed;">
+                  <span class="transcript-timecode">00:06.400</span>
+                  <span style="color: #a1a1aa; font-style: italic;">[0.4s Dead-Air Silence Auto-Cut]</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom: Multi-Track Timeline with Audio Waveform & Subtitle Ribbon -->
+          <div class="app-timeline-workspace">
+            <!-- Timeline Ruler -->
+            <div class="timeline-ruler-row">
+              <span>00:00.0</span>
+              <span>00:05.0</span>
+              <span>00:10.0</span>
+              <span>00:15.0</span>
+              <span>00:20.0</span>
+              <span>00:25.0</span>
+              <span>00:30.0</span>
+            </div>
+
+            <!-- Multi-Track Stack -->
+            <div class="timeline-tracks-stack">
+              <!-- Red Playhead Line -->
+              <div class="timeline-playhead-line"></div>
+
+              <!-- Track 1: Video Track -->
+              <div class="timeline-track-lane">
+                <div class="track-label-col">VIDEO 1</div>
+                <div class="track-blocks-col">
+                  <div class="clip-block" style="width: 28%; background: rgba(59, 130, 246, 0.25); border-color: rgba(59, 130, 246, 0.5);">
+                    Clip_A.mp4 [00:00 - 00:04]
+                  </div>
+                  <div class="clip-block" style="flex: 1; background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.4);">
+                    Clip_B_Cut.mp4 [00:04 - 00:30]
+                  </div>
+                </div>
+              </div>
+
+              <!-- Track 2: Subtitle Track Ribbon -->
+              <div class="timeline-track-lane">
+                <div class="track-label-col">SUBTITLES</div>
+                <div class="track-blocks-col">
+                  <div class="clip-block" style="width: 14%; background: rgba(250, 204, 21, 0.15); border-color: rgba(250, 204, 21, 0.4); color: #facc15;">
+                    [Stop]
+                  </div>
+                  <div class="clip-block" style="width: 14%; background: rgba(250, 204, 21, 0.25); border-color: rgba(250, 204, 21, 0.6); color: #facc15; font-weight: 700;">
+                    [$30/mo ★]
+                  </div>
+                  <div class="clip-block" style="width: 18%; background: rgba(250, 204, 21, 0.15); border-color: rgba(250, 204, 21, 0.4); color: #facc15;">
+                    [caption apps]
+                  </div>
+                  <div class="clip-block" style="flex: 1; background: rgba(250, 204, 21, 0.15); border-color: rgba(250, 204, 21, 0.4); color: #facc15;">
+                    [when CapShorts is free]
+                  </div>
+                </div>
+              </div>
+
+              <!-- Track 3: Audio Waveform Track -->
+              <div class="timeline-track-lane">
+                <div class="track-label-col">AUDIO 1</div>
+                <div class="waveform-canvas-block">
+                  <svg class="waveform-bars-vector" viewBox="0 0 400 20" preserveAspectRatio="none">
+                    <path d="M0,10 L5,2 L10,18 L15,4 L20,16 L25,3 L30,17 L35,6 L40,14 L45,1 L50,19 L55,5 L60,15 L65,7 L70,13 L75,2 L80,18 L85,4 L90,16 L95,6 L100,14 L105,1 L110,10 L115,10 L120,3 L125,17 L130,5 L135,15 L140,2 L145,18 L150,4 L155,16 L160,1 L165,19 L170,6 L175,14 L180,3 L185,17 L190,5 L195,15 L200,2 L205,18 L210,4 L215,16 L220,1 L225,19 L230,7 L235,13 L240,2 L245,18 L250,4 L255,16 L260,3 L265,17 L270,6 L275,14 L280,1 L285,19 L290,5 L295,15 L300,7 L305,13 L310,2 L315,18 L320,4 L325,16 L330,6 L335,14 L340,1 L345,19 L350,5 L355,15 L360,2 L365,18 L370,4 L375,16 L380,3 L385,17 L390,6 L395,14 L400,10" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -264,39 +438,64 @@
     </div>
   </section>
 
-  <!-- Interactive Studio Section -->
+  <!-- Interactive Studio Section (Realistic 9:16 Mobile Frame with Media Background) -->
   <section id="studio" class="section-spacer" style="background: #060608;">
     <div class="container">
       <div class="section-header-centered">
         <span class="section-eyebrow-tag">Interactive Playground</span>
         <h2 class="section-main-heading">Live Animated Subtitle Presets</h2>
         <p class="section-subtitle-text">
-          Test CapShorts's real-time animated typography presets running right in your browser.
+          Click the presets below to preview real-time animated typography running live over vertical media.
         </p>
       </div>
 
       <div class="studio-container">
+        <!-- Studio Header with Tabs -->
         <div class="studio-header">
           <div class="studio-tabs-row">
-            <button class="studio-tab-btn active" data-preset="mrbeast">MrBeast Pop</button>
-            <button class="studio-tab-btn" data-preset="hormozi">Hormozi Box</button>
-            <button class="studio-tab-btn" data-preset="vox">Vox Editorial</button>
-            <button class="studio-tab-btn" data-preset="neon">Neon Cyberpunk</button>
+            <button class="studio-tab-btn active" data-preset="mrbeast">
+              <span>🔴 MrBeast Pop</span>
+            </button>
+            <button class="studio-tab-btn" data-preset="hormozi">
+              <span>🟡 Hormozi Box</span>
+            </button>
+            <button class="studio-tab-btn" data-preset="vox">
+              <span>✒️ Vox Editorial</span>
+            </button>
+            <button class="studio-tab-btn" data-preset="neon">
+              <span>⚡ Neon Cyberpunk</span>
+            </button>
           </div>
-          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">
-            CSS3 GPU ACCELERATED
+          <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--emerald);">
+            ● GPU RENDERING READY
           </span>
         </div>
 
+        <!-- Realistic 9:16 Vertical Video Preview Stage -->
         <div class="studio-stage">
-          <div class="phone-display-frame">
-            <div class="live-caption-box">
-              <div id="liveCaptionDisplay" class="style-mrbeast">
+          <div class="realistic-phone-frame">
+            <!-- Looped ambient video backdrop -->
+            <div class="phone-media-backdrop"></div>
+
+            <!-- Dynamic Island Camera Notch -->
+            <div class="phone-dynamic-island"></div>
+
+            <!-- Speaker Graphic Silhouette -->
+            <div class="phone-speaker-graphic">
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+              </svg>
+            </div>
+
+            <!-- Live Animated Caption Stage -->
+            <div class="phone-caption-stage">
+              <div id="liveCaptionDisplay" class="preset-mrbeast">
                 UNLOCK MILLIONS OF VIEWS
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </section>
@@ -484,7 +683,7 @@
     </div>
   </section>
 
-  <!-- FAQ Section -->
+  <!-- FAQ Section (Positioned Below Downloads Hub) -->
   <section id="faq" class="section-spacer">
     <div class="container">
       <div class="section-header-centered">
@@ -550,14 +749,23 @@
     </div>
   </section>
 
-  <!-- Minimalist Footer -->
+  <!-- Minimalist Footer with Vector Logo -->
   <footer class="site-footer">
     <div class="container">
       <div class="footer-top-row">
         <div style="display: flex; align-items: center; gap: 0.65rem;">
-          <div class="brand-logo-badge" style="width: 24px; height: 24px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-          </div>
+          <svg class="brand-logo-svg" width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="url(#footer-logo-grad)"/>
+            <path d="M9 9H7C5.89543 9 5 9.89543 5 11V21C5 22.1046 5.89543 23 7 23H9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M23 9H25C26.1046 9 27 9.89543 27 11V21C27 22.1046 26.1046 23 25 23H23" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M13 11.5L20.5 16L13 20.5V11.5Z" fill="white"/>
+            <defs>
+              <linearGradient id="footer-logo-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6366F1"/>
+                <stop stop-color="#4338CA"/>
+              </linearGradient>
+            </defs>
+          </svg>
           <span style="font-weight: 600; color: var(--text-primary);">CapShorts</span>
           <span style="color: var(--text-muted);">— Open-Source Desktop Video Editor</span>
         </div>

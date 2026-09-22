@@ -1,26 +1,26 @@
 // CapShorts — Minimalist High-End SaaS Client Logic
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Interactive Studio Preset Switcher
+  // 1. Interactive Studio Preset Switcher with Distinct Kinetic Animations
   const tabButtons = document.querySelectorAll('.studio-tab-btn');
   const captionDisplay = document.getElementById('liveCaptionDisplay');
 
   const presetData = {
     mrbeast: {
-      text: "UNLOCK MILLIONS OF VIEWS",
-      styleClass: "style-mrbeast"
+      html: 'UNLOCK <span style="color: #facc15;">MILLIONS</span> OF VIEWS',
+      styleClass: 'preset-mrbeast'
     },
     hormozi: {
-      text: "STOP PAYING $30/MO FOR CAPTION APPS",
-      styleClass: "style-hormozi"
+      html: 'STOP PAYING <span class="word-jump" style="color: #ffffff; background: #0284c7; padding: 2px 6px; border-radius: 4px;">$30/MO</span> FOR APPS',
+      styleClass: 'preset-hormozi'
     },
     vox: {
-      text: "The future of video editing is local-first.",
-      styleClass: "style-vox"
+      html: 'The future of video editing is <span class="highlighter-marker">local-first.</span>',
+      styleClass: 'preset-vox'
     },
     neon: {
-      text: "NVENC GPU PIPELINE READY",
-      styleClass: "style-neon"
+      html: 'NVENC GPU // <span style="color: #ffffff;">16X ACCELERATED</span>',
+      styleClass: 'preset-neon'
     }
   };
 
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (data && captionDisplay) {
         captionDisplay.className = data.styleClass;
-        captionDisplay.textContent = data.text;
+        captionDisplay.innerHTML = data.html;
       }
     });
   });
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. Smooth Anchor Scrolling with 80px Navbar Offset
+  // 5. Smooth Anchor Scrolling with 76px Navbar Offset
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       const targetId = this.getAttribute('href');
