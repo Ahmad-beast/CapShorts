@@ -280,7 +280,7 @@
   </section>
 
   <!-- Interactive Typographic Preset Switcher (No Phone Frames, Pure Dynamic Typography) -->
-  <section id="presets" class="section-spacer" style="background: #060608;">
+  <section id="presets" class="section-spacer preset-section-wrap" style="background: #060608;">
     <div class="container">
       <div class="section-header-centered">
         <span class="section-eyebrow-tag">Pure Typographic Engine</span>
@@ -290,39 +290,41 @@
         </p>
       </div>
 
-      <div class="preset-switcher-box">
-        <!-- Preset Selector Pills on Top -->
-        <div class="preset-pills-row">
-          <button class="preset-pill-btn active" data-preset="mrbeast">
-            <span>🔴 MrBeast Pop</span>
-          </button>
-          <button class="preset-pill-btn" data-preset="hormozi">
-            <span>🟡 Hormozi Box</span>
-          </button>
-          <button class="preset-pill-btn" data-preset="vox">
-            <span>✒️ Vox Editorial</span>
-          </button>
-          <button class="preset-pill-btn" data-preset="neon">
-            <span>⚡ Neon Cyberpunk</span>
-          </button>
-        </div>
-
-        <!-- Large Bold Dynamic Animated Quote Display -->
-        <div class="typography-stage-area">
-          <div id="dynamicTypographyQuote" class="preset-mrbeast-pop">
-            UNLOCK <span style="color: #facc15;">MILLIONS</span> OF VIEWS WITH AI
+      <div class="preset-card-container">
+        <div class="preset-switcher-box">
+          <!-- Preset Selector Pills on Top -->
+          <div class="preset-pills-row">
+            <button class="preset-pill-btn active" data-preset="mrbeast">
+              <span>🔴 MrBeast Pop</span>
+            </button>
+            <button class="preset-pill-btn" data-preset="hormozi">
+              <span>🟡 Hormozi Box</span>
+            </button>
+            <button class="preset-pill-btn" data-preset="vox">
+              <span>✒️ Vox Editorial</span>
+            </button>
+            <button class="preset-pill-btn" data-preset="neon">
+              <span>⚡ Neon Cyberpunk</span>
+            </button>
           </div>
-        </div>
 
-        <!-- Preset Metadata Bar -->
-        <div class="preset-footer-bar">
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <span class="pill-status-dot"></span>
-            <span id="presetActiveLabel">MrBeast Pop — Punchy bounce scale with dynamic red stroke</span>
+          <!-- Large Bold Dynamic Animated Quote Display -->
+          <div class="typography-stage-area">
+            <div id="dynamicTypographyQuote" class="preset-mrbeast-pop">
+              UNLOCK <span style="color: #facc15;">MILLIONS</span> OF VIEWS WITH AI
+            </div>
           </div>
-          <button id="btnMorphCycle" style="background: none; border: 1px solid var(--border-subtle); color: var(--accent); padding: 0.35rem 0.85rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer;">
-            CYCLE PHRASE ↻
-          </button>
+
+          <!-- Preset Metadata Bar -->
+          <div class="preset-footer-bar">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="pill-status-dot"></span>
+              <span id="presetActiveLabel">MrBeast Pop — Punchy bounce scale with dynamic red stroke</span>
+            </div>
+            <button id="btnMorphCycle" style="background: none; border: 1px solid var(--border-subtle); color: var(--accent); padding: 0.35rem 0.85rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.72rem; cursor: pointer;">
+              CYCLE PHRASE ↻
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -337,6 +339,13 @@
         <p class="section-subtitle-text">
           Compare CapShorts against costly subscription SaaS alternatives.
         </p>
+      </div>
+
+      <!-- Mobile Swipe Hint -->
+      <div class="table-swipe-hint">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        <span>Swipe horizontally to compare features</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
       </div>
 
       <div class="compare-table-wrapper">
