@@ -16,6 +16,10 @@ Generate word-accurate animated captions, extract viral vertical shorts, remove 
 
 <br />
 
+[![Visit Website](https://img.shields.io/badge/🌐%20Explore%20Live%20Website%20%26%20Interactive%20Studio-thealiraza2.github.io%2FCapShorts-00f0ff?style=for-the-badge&logo=googlechrome&logoColor=black)](https://thealiraza2.github.io/CapShorts/)
+
+<br />
+
 [🌐 Official Website](https://thealiraza2.github.io/CapShorts/) • [📥 Download for Windows & Mac](#-downloads) • [✨ Features](#-why-capshorts) • [⚡ Quickstart](#-quickstart--local-development) • [⌨️ Shortcuts](#%EF%B8%8F-keyboard-shortcuts)
 
 ---
