@@ -3,524 +3,267 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CapShorts — The 100% Free, Local-First AI Video Editor for Short-Form Creators</title>
-  <meta name="description" content="Stop paying $30/month for Opus Clip, Submagic, or CapCut Pro. Generate word-accurate animated subtitles, extract viral shorts, and export studio-quality videos directly on your desktop.">
+  <title>CapShorts — The Free, Local-First AI Video Editor for Short-Form Creators</title>
+  <meta name="description" content="Stop paying $30/month for Opus Clip, Submagic, or CapCut Pro. Generate word-accurate animated subtitles, extract viral vertical shorts, and export studio-quality videos with zero subscriptions.">
   <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
   
-  <!-- Open Graph / Meta -->
+  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="CapShorts — Free Desktop AI Video Editor">
   <meta property="og:description" content="Generate word-accurate animated captions, extract viral shorts, remove dead air, and export studio-quality videos with zero subscriptions.">
   <meta property="og:image" content="./assets/screenshot_verified.png">
   
-  <!-- Typography Fonts: Playfair Display (Serif), Inter (Sans), JetBrains Mono (Monospace) -->
+  <!-- Modern Inter & JetBrains Mono Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 
-  <!-- ==========================================================================
-       Header (Fixed with mix-blend-difference)
-       ========================================================================== -->
-  <header class="fixed-header">
-    <div class="header-container">
-      <a href="#" class="header-logo">
-        CapShorts <span>V1.0.0</span>
-      </a>
+  <!-- Ambient Glow Gradients -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
 
-      <nav class="header-nav">
-        <a href="#features" class="nav-link">[ FEATURES ]</a>
-        <a href="#presets" class="nav-link">[ PRESETS ]</a>
-        <a href="#capabilities" class="nav-link">[ CAPABILITIES ]</a>
-        <a href="#compare" class="nav-link">[ COMPARE ]</a>
-        <a href="#downloads" class="nav-link">[ DOWNLOAD ]</a>
-      </nav>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="#" class="nav-brand">
+          <div class="nav-logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+          </div>
+          <span>CapShorts</span>
+          <span class="nav-tag">v1.0.0</span>
+        </a>
 
-      <a href="#downloads" class="header-status-btn">
-        <span class="pulse-dot"></span>
-        SYSTEM ONLINE // V1.0.0
-      </a>
+        <ul class="nav-links">
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#demo" class="nav-link">Interactive Studio</a></li>
+          <li><a href="#compare" class="nav-link">Comparison</a></li>
+          <li><a href="#faq" class="nav-link">FAQ</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <a href="https://github.com/thealiraza2/CapShorts" target="_blank" rel="noopener" class="btn-nav-github">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            <span>Star on GitHub</span>
+          </a>
+          <a href="#downloads" class="btn-nav-download">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Download</span>
+          </a>
+        </div>
+      </div>
     </div>
   </header>
 
-  <!-- ==========================================================================
-       Hero Section (100vh with 30s Drifting Mesh & Wave Curve Transition)
-       ========================================================================== -->
-  <section class="hero-section">
-    <!-- Drifting Mesh Gradient -->
-    <div class="mesh-gradient-container">
-      <div class="mesh-orb mesh-orb-1"></div>
-      <div class="mesh-orb mesh-orb-2"></div>
-      <div class="mesh-orb mesh-orb-3"></div>
-    </div>
-
-    <div class="hero-content reveal-item">
-      <div class="hero-kicker">
-        <span class="mono-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-          LOCAL-FIRST AI MEDIA ENGINE
-        </span>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-pill">
+        <span class="pill-dot"></span>
+        <span>CapShorts v1.0.0 Released • 100% Free & Open-Source</span>
       </div>
 
       <h1 class="hero-title">
-        Viral Shorts,<br>
-        <em>Engineered</em> Locally.
+        Create Viral Shorts <span class="gradient-text">10x Faster.</span><br>
+        Auto Subtitles. Zero Subscription.
       </h1>
 
-      <p class="hero-subtitle">
-        The 100% free, private desktop AI video editor. Generate word-accurate animated captions, extract viral vertical shorts, and export studio-quality videos with zero subscriptions and zero watermarks.
+      <p class="hero-sub">
+        The desktop-native alternative to Opus Clip, Submagic & CapCut Pro. Word-accurate animated subtitles in ~3 seconds, 100+ viral presets, and 1-click clipping directly on your machine.
       </p>
 
-      <div class="hero-action-group">
-        <a href="#downloads" class="btn-primary-pulse">
-          DOWNLOAD V1.0.0
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      <div class="hero-cta-group">
+        <a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_x64-setup.exe" class="btn-cta-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+          <span>Download for Windows (64-bit)</span>
         </a>
-        <a href="https://github.com/thealiraza2/CapShorts" target="_blank" rel="noopener" class="btn-secondary-mono">
-          GITHUB REPOSITORY
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-        </a>
-      </div>
 
-      <!-- Quick Metrics Kicker -->
-      <div class="hero-specs-row">
-        <div class="spec-item">
-          <span class="spec-val">~2-3s</span>
-          <span class="spec-label">Whisper Turbo</span>
-        </div>
-        <div class="spec-item">
-          <span class="spec-val">100+</span>
-          <span class="spec-label">Viral Presets</span>
-        </div>
-        <div class="spec-item">
-          <span class="spec-val">$0/mo</span>
-          <span class="spec-label">100% Free Forever</span>
-        </div>
-        <div class="spec-item">
-          <span class="spec-val">16x</span>
-          <span class="spec-label">GPU Render Speed</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Concave Wave Transition Bridge -->
-    <div class="wave-container">
-      <div class="wave-curve"></div>
-      <div class="wave-crest-action">
-        <a href="#features" class="wave-crest-btn">
-          EXPLORE CAPABILITIES ↓
+        <a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_universal.dmg" class="btn-cta-mac">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 1.01-2.87-.96.04-2.16.65-2.84 1.45-.58.67-1.11 1.74-1.01 2.8 1.09.08 2.23-.58 2.84-1.38z"/></svg>
+          <span>Download for Mac (Universal DMG)</span>
         </a>
       </div>
+
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>No Subscriptions ($0 Forever)</span>
+        </div>
+        <div class="hero-meta-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Zero Watermarks</span>
+        </div>
+        <div class="hero-meta-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Bundled Offline AI & FFmpeg</span>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- ==========================================================================
-       Work / Portfolio Showcase Grid (Staggered 2-Column, 4:3 Cards)
-       ========================================================================== -->
-  <section id="features" class="content-section">
-    <div class="container-editorial">
-      
-      <div class="section-header-block reveal-item">
-        <span class="mono-label">// CORE ARCHITECTURE</span>
-        <h2 class="section-lead">
-          Designed for <em>Virality</em> & Precision.
-        </h2>
+  <!-- Interactive Studio Demo Mockup -->
+  <section id="demo" class="container" style="margin-bottom: 120px;">
+    <div class="preview-container">
+      <div class="preview-header">
+        <div class="preview-dots">
+          <div class="preview-dot dot-red"></div>
+          <div class="preview-dot dot-yellow"></div>
+          <div class="preview-dot dot-green"></div>
+        </div>
+        <span class="preview-title">CapShorts Studio — Interactive Live Preview</span>
+        <span class="preview-badge">⚡ Ultra Fast Engine Ready</span>
       </div>
 
-      <div class="showcase-grid">
-        
-        <!-- Column 1 -->
-        <div class="showcase-column">
-          
-          <!-- Card 1: Word-Accurate Subtitles -->
-          <div class="showcase-card-wrapper reveal-item">
-            <div class="intelligent-card" style="background-color: #e0e7ff;">
-              <div class="card-bg-layer" style="background-color: #e0e7ff;"></div>
-              <div class="card-orb-center" style="background: radial-gradient(circle, #6366f1 0%, rgba(99, 102, 241, 0) 70%);"></div>
-              
-              <div class="card-content-preview">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <span class="mono-badge">WHISPER LARGE-V3</span>
-                  <span class="mono-label" style="color: #4338ca;">0.00ms SYNC</span>
-                </div>
-                <div style="text-align: center; padding: 1.5rem 0;">
-                  <p style="font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.6rem; line-height: 1.2; text-transform: uppercase;">
-                    STOP PAYING <span style="color: #4338ca; background: #e0e7ff; padding: 2px 8px; border-radius: 6px;">$30/MO</span> FOR CLOUD APPS
-                  </p>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 0.75rem;">
-                  <span class="mono-label">AUTO-KEYWORD DETECTION</span>
-                  <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #16a34a; font-weight: 600;">ACTIVE</span>
-                </div>
-              </div>
-
-              <div class="card-action-pill">[ VIEW FEATURE ]</div>
-            </div>
-
-            <div class="card-meta-block">
-              <div class="card-meta-header">
-                <h3 class="card-meta-title">Word-Accurate AI Subtitles</h3>
-                <span class="mono-label">01 // TRANSCRIPTION</span>
-              </div>
-              <div class="draw-line"></div>
-              <p class="card-meta-desc">
-                Powered by Whisper Large-v3 with instant millisecond timestamps. Cloud Turbo processes 60-second audio in ~2-3 seconds with automatic fallback to local offline Faster-Whisper.
-              </p>
-            </div>
+      <div class="preview-body">
+        <!-- Sidebar Preset Selector -->
+        <div class="mock-sidebar">
+          <span class="mock-sidebar-title">Viral Preset Library</span>
+          <div class="mock-preset-chip active" data-preset="mrbeast">
+            <span>🟡 MrBeast Yellow Pop</span>
+            <span style="font-size: 0.7rem; color: #facc15;">POP</span>
           </div>
-
-          <!-- Card 3: 100+ Handcrafted Presets -->
-          <div class="showcase-card-wrapper reveal-item">
-            <div class="intelligent-card" style="background-color: #fae8ff;">
-              <div class="card-bg-layer" style="background-color: #fae8ff;"></div>
-              <div class="card-orb-center" style="background: radial-gradient(circle, #d946ef 0%, rgba(217, 70, 239, 0) 70%);"></div>
-              
-              <div class="card-content-preview">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <span class="mono-badge">100+ PRESETS</span>
-                  <span class="mono-label" style="color: #a21caf;">KINETIC PHYSICS</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; align-items: center; height: 100%;">
-                  <span style="font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.25rem; color: #eab308; text-shadow: 2px 2px 0 #000;">★ HORMOZI BOLD</span>
-                  <span style="font-family: var(--font-serif); font-style: italic; font-weight: 700; font-size: 1.15rem; color: #171717;">Vox Editorial Box</span>
-                  <span style="font-family: var(--font-mono); font-size: 0.95rem; color: #06b6d4; font-weight: 700;">NEON CYBERPUNK 2077</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 0.75rem;">
-                  <span class="mono-label">KARAOKE GRADIENT WIPE</span>
-                  <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #16a34a; font-weight: 600;">GPU-READY</span>
-                </div>
-              </div>
-
-              <div class="card-action-pill">[ VIEW PRESETS ]</div>
-            </div>
-
-            <div class="card-meta-block">
-              <div class="card-meta-header">
-                <h3 class="card-meta-title">100+ Viral Subtitle Presets</h3>
-                <span class="mono-label">03 // ANIMATION</span>
-              </div>
-              <div class="draw-line"></div>
-              <p class="card-meta-desc">
-                Handcrafted kinetic styles inspired by MrBeast, Alex Hormozi, Vox, Ali Abdaal, and Netflix. Includes fluid word-by-word karaoke gradient wipes and custom highlight colors.
-              </p>
-            </div>
+          <div class="mock-preset-chip" data-preset="hormozi">
+            <span>🔵 Hormozi Cyan Box</span>
+            <span style="font-size: 0.7rem; color: #00f2fe;">BOX</span>
           </div>
-
+          <div class="mock-preset-chip" data-preset="glitch">
+            <span>🟢 Cyberpunk Glitch</span>
+            <span style="font-size: 0.7rem; color: #22c55e;">NEON</span>
+          </div>
+          <div class="mock-preset-chip" data-preset="karaoke">
+            <span>🔴 Karaoke Color Sweep</span>
+            <span style="font-size: 0.7rem; color: #f43f5e;">WIPE</span>
+          </div>
         </div>
 
-        <!-- Column 2 (Staggered Downwards) -->
-        <div class="showcase-column">
-          
-          <!-- Card 2: Opus-Style Shorts Detection -->
-          <div class="showcase-card-wrapper reveal-item">
-            <div class="intelligent-card" style="background-color: #f3e8ff;">
-              <div class="card-bg-layer" style="background-color: #f3e8ff;"></div>
-              <div class="card-orb-center" style="background: radial-gradient(circle, #a855f7 0%, rgba(168, 85, 247, 0) 70%);"></div>
-              
-              <div class="card-content-preview">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <span class="mono-badge">OPUS-STYLE AI</span>
-                  <span class="mono-label" style="color: #7e22ce;">VIRALITY 98%</span>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 0.65rem; padding: 1rem 0;">
-                  <div style="background: #ffffff; border-radius: 8px; padding: 0.75rem; border: 1px solid #e5e5e5; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                      <span class="mono-label" style="font-size: 0.65rem;">CLIP #01 // 34 SECONDS</span>
-                      <p style="font-size: 0.85rem; font-weight: 600; color: #171717;">"How to build local software..."</p>
-                    </div>
-                    <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #16a34a; font-weight: 700;">VIRAL 96%</span>
-                  </div>
-                  <div style="background: #ffffff; border-radius: 8px; padding: 0.75rem; border: 1px solid #e5e5e5; display: flex; justify-content: space-between; align-items: center; opacity: 0.8;">
-                    <div>
-                      <span class="mono-label" style="font-size: 0.65rem;">CLIP #02 // 48 SECONDS</span>
-                      <p style="font-size: 0.85rem; font-weight: 600; color: #171717;">"The secret to fast rendering..."</p>
-                    </div>
-                    <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #16a34a; font-weight: 700;">VIRAL 92%</span>
-                  </div>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 0.75rem;">
-                  <span class="mono-label">COMPLETE THOUGHT GUARANTEE</span>
-                  <span style="font-family: var(--font-mono); font-size: 0.72rem; color: #16a34a; font-weight: 600;">ZERO CUT-OFFS</span>
+        <!-- Main Viewport -->
+        <div class="mock-stage">
+          <div class="mock-viewport">
+            <div class="mock-phone-frame">
+              <div class="mock-video-bg"></div>
+              <div class="mock-speaker-avatar">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              </div>
+              <div class="mock-caption-box">
+                <div id="mockCaptionText" class="mock-caption-text style-mrbeast">
+                  UNLOCK MILLIONS OF VIEWS
                 </div>
               </div>
-
-              <div class="card-action-pill">[ VIEW FEATURE ]</div>
-            </div>
-
-            <div class="card-meta-block">
-              <div class="card-meta-header">
-                <h3 class="card-meta-title">AI Viral Shorts Detection</h3>
-                <span class="mono-label">02 // CLIPPING</span>
-              </div>
-              <div class="draw-line"></div>
-              <p class="card-meta-desc">
-                Drop any 10-to-60 minute podcast or longform video. CapShorts extracts 25s–60s self-contained highlight clips with virality scoring and natural sentence boundary detection.
-              </p>
             </div>
           </div>
 
-          <!-- Card 4: CapCut-Style Timeline Studio -->
-          <div class="showcase-card-wrapper reveal-item">
-            <div class="intelligent-card" style="background-color: #ede9fe;">
-              <div class="card-bg-layer" style="background-color: #ede9fe;"></div>
-              <div class="card-orb-center" style="background: radial-gradient(circle, #818cf8 0%, rgba(129, 140, 248, 0) 70%);"></div>
-              
-              <div class="card-content-preview" style="padding: 0.75rem;">
-                <img src="./assets/screenshot_verified.png" alt="CapShorts Studio UI" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.65rem; border: 1px solid rgba(0,0,0,0.1);">
-              </div>
-
-              <div class="card-action-pill">[ VIEW STUDIO ]</div>
+          <!-- Bottom Timeline -->
+          <div class="mock-timeline">
+            <div class="timeline-track-title">
+              <span>CAPTIONS TRACK (WORD TIMESTAMPS)</span>
+              <span style="color: var(--primary-cyan); font-family: var(--font-mono);">00:04.28 / 00:30.00</span>
             </div>
-
-            <div class="card-meta-block">
-              <div class="card-meta-header">
-                <h3 class="card-meta-title">Desktop Timeline Studio</h3>
-                <span class="mono-label">04 // NATIVE APP</span>
-              </div>
-              <div class="draw-line"></div>
-              <p class="card-meta-desc">
-                CapCut-inspired native desktop timeline. Includes Razor Blade tool (`B`), 1-click dead-air silence remover, interactive word token adjustments, and 16x hardware GPU export.
-              </p>
+            <div class="timeline-bars-row">
+              <div class="timeline-word-block">Unlock</div>
+              <div class="timeline-word-block highlight">Millions ⭐</div>
+              <div class="timeline-word-block">of</div>
+              <div class="timeline-word-block">views</div>
+              <div class="timeline-word-block highlight">AI ⭐</div>
+              <div class="timeline-word-block">captions!</div>
+              <div class="timeline-word-block highlight">Viral ⭐</div>
+            </div>
+            <div class="timeline-waveform-row">
+              <div class="wave-bar" style="height: 45%;"></div>
+              <div class="wave-bar" style="height: 70%;"></div>
+              <div class="wave-bar" style="height: 95%;"></div>
+              <div class="wave-bar" style="height: 60%;"></div>
+              <div class="wave-bar" style="height: 85%;"></div>
+              <div class="wave-bar" style="height: 30%;"></div>
+              <div class="wave-bar" style="height: 90%;"></div>
+              <div class="wave-bar" style="height: 65%;"></div>
+              <div class="wave-bar" style="height: 100%;"></div>
+              <div class="wave-bar" style="height: 40%;"></div>
+              <div class="wave-bar" style="height: 75%;"></div>
+              <div class="wave-bar" style="height: 85%;"></div>
+              <div class="wave-bar" style="height: 50%;"></div>
             </div>
           </div>
-
         </div>
-
       </div>
-
     </div>
   </section>
 
-  <!-- ==========================================================================
-       Interactive Live Subtitle Style Simulator
-       ========================================================================== -->
-  <section id="presets" class="simulator-section">
-    <div class="container-editorial">
-      
-      <div class="section-header-block reveal-item" style="text-align: center; margin-bottom: 3.5rem;">
-        <span class="mono-badge">REAL-TIME ENGINE</span>
-        <h2 class="section-lead">
-          Kinetic Subtitles, <em>Rendered</em> Instantly.
-        </h2>
-        <p style="color: var(--text-muted); max-width: 600px; margin: 1rem auto 0; font-size: 1.1rem;">
-          Toggle below to test CapShorts's real-time animated typography presets running right in your browser.
-        </p>
-      </div>
+  <!-- Features Section -->
+  <section id="features" class="section">
+    <div class="container">
+      <span class="section-tag">ENGINEERED FOR VIRALITY</span>
+      <h2 class="section-title">Everything you need to dominate Shorts & Reels</h2>
+      <p class="section-desc">Zero manual typing. Zero paying monthly subscriptions. Just drag, edit in real-time, and render.</p>
 
-      <div class="simulator-layout">
-        
-        <!-- Preset Selection Tabs -->
-        <div class="preset-selector-tabs reveal-item">
-          
-          <button class="preset-tab-btn active" data-preset="hormozi">
-            <div>
-              <div class="tab-title">Hormozi Bold</div>
-              <div class="tab-cat">HIGH-RETENTION YELLOW PUNCH</div>
-            </div>
-            <span class="mono-label">01 →</span>
-          </button>
-
-          <button class="preset-tab-btn" data-preset="mrbeast">
-            <div>
-              <div class="tab-title">MrBeast Pop</div>
-              <div class="tab-cat">DYNAMIC SCALE & SHADOW IMPACT</div>
-            </div>
-            <span class="mono-label">02 →</span>
-          </button>
-
-          <button class="preset-tab-btn" data-preset="vox">
-            <div>
-              <div class="tab-title">Vox Editorial Box</div>
-              <div class="tab-cat">SOPHISTICATED SERIF HIGHLIGHT</div>
-            </div>
-            <span class="mono-label">03 →</span>
-          </button>
-
-          <button class="preset-tab-btn" data-preset="neon">
-            <div>
-              <div class="tab-title">Neon Cyberpunk</div>
-              <div class="tab-cat">TECH GLOW & MONOSPACE PULSE</div>
-            </div>
-            <span class="mono-label">04 →</span>
-          </button>
-
-        </div>
-
-        <!-- Phone Mockup Display -->
-        <div class="phone-mockup-wrapper reveal-item">
-          <div class="phone-mockup">
-            
-            <div class="mockup-header">
-              <span class="mono-label" style="color: #a1a1aa; font-size: 0.65rem;">9:16 SHORT</span>
-              <div class="mockup-camera"></div>
-              <span id="simulatorStyleBadge" class="mono-label" style="color: #6366f1; font-size: 0.62rem;">PRESET // HORMOZI</span>
-            </div>
-
-            <div class="mockup-video-bg">
-              <div class="speaker-avatar-circle">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="22"></line></svg>
-              </div>
-            </div>
-
-            <!-- Dynamic Animated Subtitle Container -->
-            <div id="simulatorCaptionDisplay" class="mockup-caption-area style-hormozi">
-              <!-- Rendered via app.js -->
-            </div>
-
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="card-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
           </div>
+          <h3>⚡ 3-Second AI Subtitles</h3>
+          <p>Powered by Groq Whisper Large-v3 turbo cloud engine and offline Faster-Whisper. Extracts word-accurate millisecond timestamps without waiting in queues.</p>
         </div>
 
-      </div>
+        <div class="feature-card">
+          <div class="card-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
+          </div>
+          <h3>🎬 Opus-Style Viral Shorts</h3>
+          <p>Drop any long podcast or YouTube video. CapShorts auto-detects high-hook 25s–60s clips with virality scores and guaranteed complete sentences.</p>
+        </div>
 
+        <div class="feature-card">
+          <div class="card-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+          </div>
+          <h3>🎨 100+ Creator Presets</h3>
+          <p>Instantly apply MrBeast pop, Alex Hormozi bold, Vox documentary boxes, Cyberpunk glitch neon, and smooth karaoke sweep animations.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+          </div>
+          <h3>🔇 1-Click Dead Air Remover</h3>
+          <p>Automatic silence detection with FFmpeg. Scans dead pauses and ripple-cuts awkward silences across all audio tracks in seconds.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+          </div>
+          <h3>🚀 16x Fast Hardware Render</h3>
+          <p>Exports in 5-10 seconds using NVIDIA NVENC, Intel QuickSync, AMD AMF, and Apple VideoToolbox with optimized vertical short background blurs.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <h3>🔒 100% Private & Standalone</h3>
+          <p>No terminal commands, no Python or Git setup required. The AI engine daemon and FFmpeg are bundled directly inside the desktop installer.</p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- ==========================================================================
-       Service Accordion ("Core Capabilities")
-       ========================================================================== -->
-  <section id="capabilities" class="content-section">
-    <div class="container-editorial">
-      
-      <div class="capabilities-layout">
-        
-        <!-- Sticky Left Column -->
-        <div class="capabilities-sticky-col reveal-item">
-          <span class="mono-label">// SYSTEM SPECIFICATION</span>
-          <h2>
-            Core<br>
-            <em>Capabilities.</em>
-          </h2>
-          <p>
-            CapShorts is engineered from the ground up as a native desktop application. All processing occurs locally on your hardware, guaranteeing zero data leakage, zero monthly fees, and lightning-fast rendering.
-          </p>
-          <a href="#downloads" class="editorial-cta-link">
-            DOWNLOAD V1.0.0 RELEASE →
-          </a>
-        </div>
+  <!-- Comparison Section -->
+  <section id="compare" class="section" style="background: rgba(255,255,255,0.01);">
+    <div class="container">
+      <span class="section-tag">VALUE COMPARISON</span>
+      <h2 class="section-title">Stop overpaying for simple AI video tools</h2>
+      <p class="section-desc">See how CapShorts compares to expensive SaaS platforms.</p>
 
-        <!-- Interactive Vertical Accordion Right Column -->
-        <div class="accordion-list reveal-item">
-          
-          <!-- Item 1 -->
-          <div class="accordion-item active">
-            <div class="accordion-trigger">
-              <div class="accordion-title-group">
-                <span class="accordion-num">01</span>
-                <h3 class="accordion-title">Whisper Large-v3 Speech Engine</h3>
-              </div>
-              <span class="accordion-icon">+</span>
-            </div>
-            <div class="accordion-content">
-              <p class="accordion-body-text">
-                CapShorts integrates Whisper Large-v3 for unmatched transcription accuracy across 90+ languages. Cloud Turbo finishes transcribing a 60-second clip in 2-3 seconds, with automatic on-device Faster-Whisper fallback when you are completely offline.
-              </p>
-              <div class="accordion-tags-row">
-                <span class="dynamic-tag">[Faster-Whisper]</span>
-                <span class="dynamic-tag">[Groq Turbo Cloud]</span>
-                <span class="dynamic-tag">[Millisecond Timestamps]</span>
-                <span class="dynamic-tag">[90+ Languages]</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Item 2 -->
-          <div class="accordion-item">
-            <div class="accordion-trigger">
-              <div class="accordion-title-group">
-                <span class="accordion-num">02</span>
-                <h3 class="accordion-title">Semantic Thought-Boundary AI</h3>
-              </div>
-              <span class="accordion-icon">+</span>
-            </div>
-            <div class="accordion-content">
-              <p class="accordion-body-text">
-                Unlike primitive time-slicers that cut off sentences mid-word, CapShorts leverages speech boundary algorithms to ensure every extracted short contains complete, coherent thoughts from opening hook to conclusion.
-              </p>
-              <div class="accordion-tags-row">
-                <span class="dynamic-tag">[Zero Cut-Offs]</span>
-                <span class="dynamic-tag">[Opus Algorithm]</span>
-                <span class="dynamic-tag">[Virality Scoring]</span>
-                <span class="dynamic-tag">[Hook Extraction]</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Item 3 -->
-          <div class="accordion-item">
-            <div class="accordion-trigger">
-              <div class="accordion-title-group">
-                <span class="accordion-num">03</span>
-                <h3 class="accordion-title">Hardware GPU Acceleration (16x)</h3>
-              </div>
-              <span class="accordion-icon">+</span>
-            </div>
-            <div class="accordion-content">
-              <p class="accordion-body-text">
-                Direct integration with NVIDIA NVENC, Intel QuickSync, AMD AMF, and Apple VideoToolbox hardware encoders. Export vertical 1080x1920 shorts with cinematic background blurs in 5 to 10 seconds.
-              </p>
-              <div class="accordion-tags-row">
-                <span class="dynamic-tag">[NVIDIA NVENC]</span>
-                <span class="dynamic-tag">[Apple VideoToolbox]</span>
-                <span class="dynamic-tag">[Intel QuickSync]</span>
-                <span class="dynamic-tag">[AMD AMF]</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Item 4 -->
-          <div class="accordion-item">
-            <div class="accordion-trigger">
-              <div class="accordion-title-group">
-                <span class="accordion-num">04</span>
-                <h3 class="accordion-title">Bundled Zero-Setup Architecture</h3>
-              </div>
-              <span class="accordion-icon">+</span>
-            </div>
-            <div class="accordion-content">
-              <p class="accordion-body-text">
-                No Python, Git, or FFmpeg installation required. CapShorts packages a native Rust Tauri shell, a compiled local media daemon, and a bundled FFmpeg pipeline into a single self-contained desktop installer.
-              </p>
-              <div class="accordion-tags-row">
-                <span class="dynamic-tag">[Tauri v2 Rust]</span>
-                <span class="dynamic-tag">[Bundled FFmpeg]</span>
-                <span class="dynamic-tag">[Zero Dependencies]</span>
-                <span class="dynamic-tag">[100% Standalone]</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       Feature & Cost Comparison Matrix
-       ========================================================================== -->
-  <section id="compare" class="content-section" style="background-color: #faf9f6;">
-    <div class="container-editorial">
-      
-      <div class="section-header-block reveal-item" style="text-align: center;">
-        <span class="mono-badge">THE ADVANTAGE</span>
-        <h2 class="section-lead">
-          Stop Paying <em>$30/Month</em> Subscriptions.
-        </h2>
-        <p style="color: var(--text-muted); max-width: 640px; margin: 1rem auto 0; font-size: 1.1rem;">
-          Compare CapShorts against legacy cloud editors. You get full creative control, unlimited exports, and complete data privacy.
-        </p>
-      </div>
-
-      <div class="comparison-wrapper reveal-item">
-        <table class="comparison-table">
+      <div class="compare-box">
+        <table class="compare-table">
           <thead>
             <tr>
               <th>Feature</th>
-              <th class="col-highlight">⚡ CapShorts</th>
+              <th class="col-capshorts">⚡ CapShorts</th>
               <th>Opus Clip</th>
               <th>Submagic</th>
               <th>CapCut Pro</th>
@@ -528,263 +271,183 @@
           </thead>
           <tbody>
             <tr>
-              <td><strong>Monthly Cost</strong></td>
-              <td class="col-highlight"><span class="check-green">100% Free (MIT)</span></td>
-              <td>$19 – $49 / mo</td>
-              <td>$20 – $50 / mo</td>
-              <td>$10 – $15 / mo</td>
+              <td><strong>Monthly Price</strong></td>
+              <td class="capshorts-cell"><span class="tag-free">100% Free Forever</span></td>
+              <td><span class="tag-paid">$19 – $49 / mo</span></td>
+              <td><span class="tag-paid">$20 – $50 / mo</span></td>
+              <td><span class="tag-paid">$10 – $15 / mo</span></td>
             </tr>
             <tr>
               <td><strong>Watermarks</strong></td>
-              <td class="col-highlight"><span class="check-green">None (Never)</span></td>
-              <td><span class="cross-red">Watermarked</span></td>
-              <td><span class="cross-red">Watermarked</span></td>
-              <td><span class="cross-red">Paid Export</span></td>
+              <td class="capshorts-cell"><span class="tag-free">Zero (Never)</span></td>
+              <td>Watermarked on Free</td>
+              <td>Watermarked on Free</td>
+              <td>Paid Only</td>
             </tr>
             <tr>
               <td><strong>Export Limits</strong></td>
-              <td class="col-highlight"><span class="check-green">Unlimited Forever</span></td>
-              <td>60 mins/month</td>
-              <td>3 videos/month</td>
-              <td>Restricted Pro</td>
+              <td class="capshorts-cell"><span class="tag-free">Unlimited</span></td>
+              <td>60–120 mins / mo</td>
+              <td>3 videos / mo</td>
+              <td>Feature Locks</td>
             </tr>
             <tr>
-              <td><strong>Offline Privacy</strong></td>
-              <td class="col-highlight"><span class="check-green">100% Local on Device</span></td>
-              <td><span class="cross-red">Cloud Only</span></td>
-              <td><span class="cross-red">Cloud Only</span></td>
-              <td><span class="cross-red">Cloud Connected</span></td>
+              <td><strong>Offline Capability</strong></td>
+              <td class="capshorts-cell"><span class="tag-free">Yes (Runs on device)</span></td>
+              <td>No (Cloud only)</td>
+              <td>No (Cloud only)</td>
+              <td>Limited</td>
+            </tr>
+            <tr>
+              <td><strong>Data Privacy</strong></td>
+              <td class="capshorts-cell"><span class="tag-free">100% Private on PC</span></td>
+              <td>Uploaded to 3rd party</td>
+              <td>Uploaded to 3rd party</td>
+              <td>Uploaded to cloud</td>
             </tr>
             <tr>
               <td><strong>Transcription Speed</strong></td>
-              <td class="col-highlight"><span class="check-green">~2–3 Seconds</span></td>
-              <td>2–5 Minutes</td>
-              <td>1–3 Minutes</td>
-              <td>1–2 Minutes</td>
-            </tr>
-            <tr>
-              <td><strong>100+ Viral Caption Styles</strong></td>
-              <td class="col-highlight"><span class="check-green">Included Free</span></td>
-              <td>Limited</td>
-              <td>Limited</td>
-              <td>Limited</td>
-            </tr>
-            <tr>
-              <td><strong>Hardware NVENC GPU</strong></td>
-              <td class="col-highlight"><span class="check-green">Full Local GPU</span></td>
-              <td>Server Queue</td>
-              <td>Server Queue</td>
-              <td>Standard</td>
+              <td class="capshorts-cell"><span class="tag-free">~2–3s (Turbo)</span></td>
+              <td>2–5 minutes</td>
+              <td>1–3 minutes</td>
+              <td>1–2 minutes</td>
             </tr>
           </tbody>
         </table>
       </div>
-
     </div>
   </section>
 
-  <!-- ==========================================================================
-       Direct Downloads Section (v1.0.0 Release)
-       ========================================================================== -->
-  <section id="downloads" class="downloads-section">
-    <div class="container-editorial">
-      
-      <div class="section-header-block reveal-item" style="text-align: center;">
-        <span class="mono-badge">OFFICIAL RELEASES</span>
-        <h2 class="section-lead">
-          Download CapShorts <em>v1.0.0</em>.
-        </h2>
-        <p style="color: var(--text-muted); max-width: 620px; margin: 1rem auto 0; font-size: 1.1rem;">
-          Ready-to-run desktop installers. No Python, Git, or FFmpeg setup required — everything is pre-packaged.
-        </p>
+  <!-- Downloads Hub Section -->
+  <section id="downloads" class="section">
+    <div class="container">
+      <div style="text-align: center; max-width: 600px; margin: 0 auto 3rem;">
+        <span class="section-tag">OFFICIAL RELEASE</span>
+        <h2 class="section-title">Download CapShorts v1.0.0</h2>
+        <p class="section-desc">Standalone installers with bundled Python AI backend and portable FFmpeg. No extra setup required.</p>
       </div>
 
-      <div class="download-cards-grid">
-        
-        <!-- Windows Setup Card -->
-        <div id="card-win" class="download-card featured reveal-item">
-          <div>
-            <div class="card-badge-top">
-              <span class="mono-badge">RECOMMENDED</span>
+      <div class="download-grid">
+        <!-- Windows Card -->
+        <div class="dl-card">
+          <div class="dl-platform-header">
+            <div class="dl-platform-title">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="#00f2fe"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+              <span>Windows 64-bit</span>
             </div>
-            <h3 class="download-platform">Windows</h3>
-            <div class="download-format">Setup Installer (.exe) • 64-bit</div>
-            
-            <ul class="download-details-list">
-              <li>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Windows 10 / 11 (x86_64)
-              </li>
-              <li>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Auto-updates & bundled runtime
-              </li>
-              <li>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Zero dependencies needed
-              </li>
-            </ul>
+            <span class="dl-badge">v1.0.0 Stable</span>
           </div>
-
-          <a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_x64-setup.exe" class="btn-download-action">
-            DOWNLOAD SETUP (.EXE)
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <p class="dl-desc">For Windows 10 and Windows 11 (64-bit). Includes hardware encoder acceleration for NVIDIA NVENC, Intel QuickSync, and AMD AMF.</p>
+          <a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_x64-setup.exe" class="btn-dl-full">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Download Installer (.exe)</span>
           </a>
+          <div class="dl-sublinks">
+            <span>Also available: <a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_x64_en-US.msi">Enterprise MSI Package (.msi)</a></span>
+            <span style="font-family: var(--font-mono);">~95 MB</span>
+          </div>
         </div>
 
-        <!-- Windows MSI Card -->
-        <div class="download-card reveal-item">
-          <div>
-            <h3 class="download-platform">Windows MSI</h3>
-            <div class="download-format">Enterprise Package (.msi) • 64-bit</div>
-            
-            <ul class="download-details-list">
-              <li>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Enterprise / System-wide deployment
-              </li>
-              <li>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Clean silent install support
-              </li>
-              <li>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                SHA-256 verified package
-              </li>
-            </ul>
-          </div>
-
-          <a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_x64_en-US.msi" class="btn-download-action">
-            DOWNLOAD MSI (.MSI)
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          </a>
-        </div>
-
-        <!-- macOS Universal Card -->
-        <div id="card-mac" class="download-card reveal-item">
-          <div>
-            <div class="card-badge-top">
-              <span class="mono-badge">UNIVERSAL</span>
+        <!-- macOS Card -->
+        <div class="dl-card">
+          <div class="dl-platform-header">
+            <div class="dl-platform-title">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="#4facfe"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 1.01-2.87-.96.04-2.16.65-2.84 1.45-.58.67-1.11 1.74-1.01 2.8 1.09.08 2.23-.58 2.84-1.38z"/></svg>
+              <span>macOS Universal</span>
             </div>
-            <h3 class="download-platform">macOS</h3>
-            <div class="download-format">Universal Disk Image (.dmg)</div>
-            
-            <ul class="download-details-list">
-              <li>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Apple Silicon (M1 / M2 / M3 / M4)
-              </li>
-              <li>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Intel Mac compatible (Universal binary)
-              </li>
-              <li>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                Apple VideoToolbox GPU acceleration
-              </li>
-            </ul>
+            <span class="dl-badge">Apple Silicon & Intel</span>
           </div>
-
-          <a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_universal.dmg" class="btn-download-action">
-            DOWNLOAD DMG (.DMG)
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <p class="dl-desc">Universal binary supporting all Macs (M1, M2, M3, M4 Apple Silicon & Intel Core i5/i7/i9). Requires macOS 11 Big Sur or newer.</p>
+          <a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_universal.dmg" class="btn-dl-full">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Download Disk Image (.dmg)</span>
           </a>
-        </div>
-
-      </div>
-
-      <!-- Quick Command Row -->
-      <div style="margin-top: 3.5rem; text-align: center;" class="reveal-item">
-        <p class="mono-label" style="margin-bottom: 0.75rem;">DEVELOPER SOURCE REPOSITORY</p>
-        <div style="display: inline-flex; align-items: center; background: #ffffff; border: 1px solid var(--border-light); border-radius: 9999px; padding: 0.6rem 1.4rem; gap: 1rem;">
-          <code style="font-family: var(--font-mono); font-size: 0.82rem; color: #171717;">git clone https://github.com/thealiraza2/CapShorts.git</code>
-          <button data-copy="git clone https://github.com/thealiraza2/CapShorts.git" style="background: none; border: none; cursor: pointer; color: var(--accent); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.2em; font-weight: 700;">COPY</button>
+          <div class="dl-sublinks">
+            <span>Universal DMG</span>
+            <span style="font-family: var(--font-mono);">~110 MB</span>
+          </div>
         </div>
       </div>
-
     </div>
   </section>
 
-  <!-- ==========================================================================
-       Footer (High-Contrast Charcoal #171717 with 5rem Top Radius & Radial Glow)
-       ========================================================================== -->
-  <footer class="footer-section">
-    <!-- Top Center Radial Glow -->
-    <div class="footer-radial-glow"></div>
+  <!-- FAQ Section -->
+  <section id="faq" class="section" style="background: rgba(255,255,255,0.01);">
+    <div class="container">
+      <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+        <span class="section-tag">FREQUENTLY ASKED QUESTIONS</span>
+        <h2 class="section-title">Got questions? We've got answers.</h2>
+      </div>
 
-    <div class="container-editorial">
-      
-      <!-- Large-scale Serif Quote -->
-      <div class="footer-quote-container reveal-item">
-        <blockquote class="footer-quote">
-          “Create without limits. <em>Zero subscriptions</em>, zero watermarks, 100% on your machine.”
-        </blockquote>
-        <div class="footer-quote-author">
-          // CAPSHORTS MANIFESTO — THE OPEN MEDIA INITIATIVE
+      <div class="faq-wrap">
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Is CapShorts really 100% free with no watermarks?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Yes! CapShorts is released under the MIT Open Source License. There are zero subscriptions, zero export restrictions, and zero watermarks. You own 100% of your exported videos.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Do I need to install Python, Git, or FFmpeg?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            No. CapShorts is a 100% standalone desktop application. The Python AI engine, Whisper models, and native FFmpeg executables are bundled directly inside the installer. Just install and launch.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Can I run CapShorts completely offline without internet?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Yes! CapShorts features an offline on-device speech engine powered by Faster-Whisper (CTranslate2). If you have no internet, it automatically transcribes on your local CPU or GPU.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            <span>Which languages are supported for subtitle transcription?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            Over 99 languages are supported, including English, Urdu (both Nastaliq and Roman Urdu), Hindi, Spanish, Arabic, French, German, Japanese, and more.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div class="nav-logo-icon" style="width: 28px; height: 28px;">
+            <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+          </div>
+          <span style="font-weight: 800; color: white;">CapShorts</span>
+          <span>— Open-Source AI Video Editor</span>
+        </div>
+
+        <div style="display: flex; gap: 1.5rem;">
+          <a href="https://github.com/thealiraza2/CapShorts" target="_blank" rel="noopener" style="color: var(--text-zinc); text-decoration: none;">GitHub</a>
+          <a href="https://github.com/thealiraza2/CapShorts/releases/tag/v1.0.0" target="_blank" rel="noopener" style="color: var(--text-zinc); text-decoration: none;">Release Notes</a>
+          <a href="https://github.com/thealiraza2/CapShorts/blob/main/LICENSE" target="_blank" rel="noopener" style="color: var(--text-zinc); text-decoration: none;">MIT License</a>
         </div>
       </div>
 
-      <!-- 4-Column Editorial Directory -->
-      <div class="footer-columns-grid reveal-item">
-        
-        <!-- Brand Bio -->
-        <div class="footer-brand-bio">
-          <div class="footer-brand-title">CapShorts</div>
-          <p class="footer-brand-desc">
-            The open-source, local-first short-form video creation studio. Freeing creators from predatory cloud subscriptions with fast AI-powered desktop software.
-          </p>
-        </div>
-
-        <!-- Downloads Column -->
-        <div>
-          <div class="footer-col-title">// DOWNLOADS</div>
-          <ul class="footer-links-list">
-            <li><a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_x64-setup.exe">Windows Setup (.exe)</a></li>
-            <li><a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_x64_en-US.msi">Windows Package (.msi)</a></li>
-            <li><a href="https://github.com/thealiraza2/CapShorts/releases/download/v1.0.0/CapShorts_1.0.0_universal.dmg">macOS Universal (.dmg)</a></li>
-            <li><a href="https://github.com/thealiraza2/CapShorts/releases/tag/v1.0.0" target="_blank" rel="noopener">Release Notes v1.0.0</a></li>
-          </ul>
-        </div>
-
-        <!-- Architecture Column -->
-        <div>
-          <div class="footer-col-title">// ARCHITECTURE</div>
-          <ul class="footer-links-list">
-            <li><a href="https://github.com/thealiraza2/CapShorts#%EF%B8%8F-architecture" target="_blank" rel="noopener">Rust Tauri v2 Shell</a></li>
-            <li><a href="https://github.com/thealiraza2/CapShorts#1--word-accurate-ai-subtitles-in-3-seconds" target="_blank" rel="noopener">Whisper Large-v3</a></li>
-            <li><a href="https://github.com/thealiraza2/CapShorts#2--opus-style-viral-shorts-detection" target="_blank" rel="noopener">Opus Clipper AI</a></li>
-            <li><a href="https://github.com/thealiraza2/CapShorts#5--16x-faster-local-hardware-rendering" target="_blank" rel="noopener">Hardware NVENC / AMF</a></li>
-          </ul>
-        </div>
-
-        <!-- Community / Links -->
-        <div>
-          <div class="footer-col-title">// COMMUNITY</div>
-          <ul class="footer-links-list">
-            <li><a href="https://github.com/thealiraza2/CapShorts" target="_blank" rel="noopener">GitHub Repository</a></li>
-            <li><a href="https://github.com/thealiraza2/CapShorts/issues" target="_blank" rel="noopener">Report an Issue</a></li>
-            <li><a href="https://github.com/thealiraza2/CapShorts/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a></li>
-            <li><a href="https://github.com/thealiraza2" target="_blank" rel="noopener">@thealiraza2 on GitHub</a></li>
-          </ul>
-        </div>
-
+      <div class="footer-bottom">
+        <span>© 2026 Ali Raza & CapShorts Contributors. Free for personal & commercial use.</span>
+        <span>Built with ❤️ for short-form creators.</span>
       </div>
-
-      <!-- Bottom Bar -->
-      <div class="footer-bottom-bar">
-        <div class="footer-copyright">
-          © 2026 CAPSHORTS // CREATED BY THEALIRAZA2 — OPEN SOURCE (MIT)
-        </div>
-        <a href="#" class="footer-back-to-top">
-          BACK TO TOP ↑
-        </a>
-      </div>
-
     </div>
   </footer>
-
-  <!-- Toast Notification Box -->
-  <div id="toast" class="toast-box">Copied to clipboard</div>
 
   <script src="./app.js"></script>
 </body>
