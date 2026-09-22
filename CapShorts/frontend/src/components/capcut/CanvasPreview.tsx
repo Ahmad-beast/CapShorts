@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import {
   Play,
   Pause,
@@ -118,8 +118,42 @@ export const CanvasPreview: React.FC = () => {
   }, [activeTemplateId, customStyleOverrides]);
 
   const isInternalUpdateRef = useRef(false);
-  const seekRafRef = useRef<number | null>(null);
-  const pendingSeekTimeRef = useRef<number | null>(null);
+  const isSeekingRef = useRef(false);
+  const queuedSeekTimeRef = useRef<number | null>(null);
+  const videoSegmentsRef = useRef(videoSegments);
+  videoSegmentsRef.current = videoSegments;
+  const activeClipRef = useRef(activeClip);
+  activeClipRef.current = activeClip;
+
+  // Non-blocking seek function with hardware decoder queue
+  const performSeek = useCallback((targetTime: number, fast: boolean = true) => {
+    if (!videoRef.current) return;
+
+    if (isSeekingRef.current) {
+      queuedSeekTimeRef.current = targetTime;
+      return;
+    }
+
+    isSeekingRef.current = true;
+    if (fast && 'fastSeek' in videoRef.current && typeof (videoRef.current as any).fastSeek === 'function') {
+      try {
+        (videoRef.current as any).fastSeek(targetTime);
+      } catch {
+        videoRef.current.currentTime = targetTime;
+      }
+    } else {
+      videoRef.current.currentTime = targetTime;
+    }
+  }, []);
+
+  const handleSeeked = useCallback(() => {
+    isSeekingRef.current = false;
+    if (queuedSeekTimeRef.current !== null) {
+      const nextTime = queuedSeekTimeRef.current;
+      queuedSeekTimeRef.current = null;
+      performSeek(nextTime, isScrubbing);
+    }
+  }, [isScrubbing, performSeek]);
 
   // Handle Play/Pause
   const togglePlay = () => {
@@ -133,40 +167,73 @@ export const CanvasPreview: React.FC = () => {
     }
   };
 
-  // Sync external currentTime changes (from user dragging or ruler scrubbing) with RAF throttle
+  // High-Precision 60 FPS / 120 FPS Playback Loop (Smooth liquid playhead)
+  useEffect(() => {
+    if (!isPlaying) return;
+    let animId: number;
+
+    const tick = () => {
+      if (videoRef.current && !videoRef.current.paused) {
+        const curSourceTime = videoRef.current.currentTime;
+        isInternalUpdateRef.current = true;
+
+        const currentSegs = videoSegmentsRef.current;
+        const currentClip = activeClipRef.current;
+
+        // Handle jump-cuts across deleted gaps between segments
+        if (currentSegs && currentSegs.length > 1) {
+          for (let i = 0; i < currentSegs.length; i++) {
+            const seg = currentSegs[i];
+            if (curSourceTime >= seg.sourceEnd - 0.03 && i < currentSegs.length - 1) {
+              const nextSeg = currentSegs[i + 1];
+              if (nextSeg.sourceStart > seg.sourceEnd + 0.04) {
+                videoRef.current.currentTime = nextSeg.sourceStart;
+                setCurrentTime(nextSeg.start);
+                animId = requestAnimationFrame(tick);
+                return;
+              }
+            }
+          }
+        }
+
+        if (currentClip && curSourceTime >= currentClip.end) {
+          videoRef.current.currentTime = currentClip.start;
+          setCurrentTime(sourceToTimelineTime(currentClip.start, currentSegs));
+        } else {
+          const calculatedTimelineTime = sourceToTimelineTime(curSourceTime, currentSegs);
+          setCurrentTime(calculatedTimelineTime);
+        }
+      }
+      animId = requestAnimationFrame(tick);
+    };
+
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, [isPlaying, setCurrentTime]);
+
+  // Sync external currentTime changes (from scrubbing, clicking, or frame step)
   useEffect(() => {
     if (isInternalUpdateRef.current) {
       isInternalUpdateRef.current = false;
-      return; // Skip seeking when update originated from playback itself
+      return;
     }
     if (!videoRef.current) return;
 
     const targetSourceTime = timelineToSourceTime(currentTime, videoSegments);
-    if (Math.abs(videoRef.current.currentTime - targetSourceTime) < 0.04) return;
+    if (Math.abs(videoRef.current.currentTime - targetSourceTime) < 0.03) return;
 
-    pendingSeekTimeRef.current = targetSourceTime;
+    performSeek(targetSourceTime, isScrubbing);
+  }, [currentTime, videoSegments, isScrubbing, performSeek]);
 
-    // Throttle to 60 FPS animation frame so we don't choke the video decoder during rapid drag
-    if (seekRafRef.current === null) {
-      seekRafRef.current = requestAnimationFrame(() => {
-        seekRafRef.current = null;
-        if (videoRef.current && pendingSeekTimeRef.current !== null) {
-          try {
-            videoRef.current.currentTime = pendingSeekTimeRef.current;
-          } catch (e) {
-            // Ignore rapid seek aborts
-          }
-        }
-      });
+  // When user stops scrubbing, do a final exact seek
+  const prevScrubbingRef = useRef(isScrubbing);
+  useEffect(() => {
+    if (prevScrubbingRef.current && !isScrubbing && videoRef.current) {
+      const targetSourceTime = timelineToSourceTime(currentTime, videoSegments);
+      performSeek(targetSourceTime, false);
     }
-
-    return () => {
-      if (seekRafRef.current !== null) {
-        cancelAnimationFrame(seekRafRef.current);
-        seekRafRef.current = null;
-      }
-    };
-  }, [currentTime, videoSegments]);
+    prevScrubbingRef.current = isScrubbing;
+  }, [isScrubbing, currentTime, videoSegments, performSeek]);
 
   // Sync volume and speed changes
   useEffect(() => {
@@ -177,33 +244,12 @@ export const CanvasPreview: React.FC = () => {
   }, [videoVolume, isMuted, videoSpeed]);
 
   const handleTimeUpdate = () => {
-    if (isScrubbing) return;
+    if (isScrubbing || isPlaying) return; // Handled by 60fps loop when playing
     if (videoRef.current) {
       const curSourceTime = videoRef.current.currentTime;
       isInternalUpdateRef.current = true;
-
-      // Handle jump-cuts across deleted gaps between segments
-      if (videoSegments && videoSegments.length > 1) {
-        for (let i = 0; i < videoSegments.length; i++) {
-          const seg = videoSegments[i];
-          if (curSourceTime >= seg.sourceEnd - 0.04 && i < videoSegments.length - 1) {
-            const nextSeg = videoSegments[i + 1];
-            if (nextSeg.sourceStart > seg.sourceEnd + 0.04) {
-              videoRef.current.currentTime = nextSeg.sourceStart;
-              setCurrentTime(nextSeg.start);
-              return;
-            }
-          }
-        }
-      }
-
-      if (activeClip && curSourceTime >= activeClip.end) {
-        videoRef.current.currentTime = activeClip.start;
-        setCurrentTime(sourceToTimelineTime(activeClip.start, videoSegments));
-      } else {
-        const calculatedTimelineTime = sourceToTimelineTime(curSourceTime, videoSegments);
-        setCurrentTime(calculatedTimelineTime);
-      }
+      const calculatedTimelineTime = sourceToTimelineTime(curSourceTime, videoSegments);
+      setCurrentTime(calculatedTimelineTime);
     }
   };
 
@@ -290,46 +336,49 @@ export const CanvasPreview: React.FC = () => {
       className="flex-1 flex flex-col items-center justify-between bg-[#0e0e10] p-3 select-none overflow-hidden relative min-h-0"
     >
       {/* Top Preview Control Bar */}
-      <div className="w-full flex items-center justify-between px-3 py-1 bg-[#141416]/80 rounded-lg border border-[#27272a] text-xs z-20 flex-shrink-0">
+      <div className="w-full flex items-center justify-between px-3.5 py-1.5 bg-zinc-900/80 backdrop-blur-xl rounded-xl border border-white/[0.08] text-xs z-20 flex-shrink-0 shadow-sm">
         <div className="flex items-center space-x-2">
           {/* Active Clip Tag (if applicable) */}
           {activeClip ? (
-            <div className="flex items-center space-x-1.5 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full text-amber-400 font-semibold text-[11px]">
-              <Flame className="w-3 h-3 fill-amber-400" />
+            <div className="flex items-center space-x-1.5 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-full text-amber-300 font-semibold text-[11px] shadow-xs">
+              <Flame className="w-3 h-3 fill-amber-400 text-amber-400" />
               <span className="truncate max-w-[140px]">{activeClip.title}</span>
               <button
                 onClick={() => selectClip(null)}
-                className="hover:text-white p-0.5 ml-1"
+                className="hover:text-white p-0.5 ml-1 transition-colors"
                 title="Exit Short Preview"
               >
                 <X className="w-2.5 h-2.5" />
               </button>
             </div>
           ) : (
-            <span className="text-zinc-300 font-semibold tracking-wide">Preview Monitor</span>
+            <div className="flex items-center space-x-1.5 text-zinc-300 font-semibold tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+              <span>Canvas Monitor</span>
+            </div>
           )}
         </div>
 
         {/* Center Aspect tag & Mode */}
         <div className="flex items-center space-x-2">
-          <div className="text-[11px] font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-500/30 px-2 py-0.5 rounded">
+          <div className="text-[11px] font-mono text-zinc-300 bg-white/[0.05] border border-white/[0.08] px-2.5 py-0.5 rounded-md">
             {aspectRatio} {aspectRatio === '9:16' ? 'Vertical Short' : aspectRatio === '16:9' ? 'Landscape' : 'Square'}
           </div>
 
-          {/* Quick Fit / Fill Mode Toggle */}
-          <div className="flex items-center bg-[#1c1c20] border border-[#27272a] rounded p-0.5 text-[11px]">
+          {/* Quick Fit / Fill Mode Toggle (macOS Segmented) */}
+          <div className="flex items-center bg-zinc-950/80 border border-white/[0.06] rounded-lg p-0.5 text-[11px]">
             <button
               onClick={() => {
                 setVideoFitMode('contain');
                 setVideoScale(1.0);
                 setVideoPosition({ x: 0, y: 0 });
               }}
-              className={`px-2 py-0.5 rounded font-medium transition-colors ${
+              className={`px-2.5 py-0.5 rounded-md font-medium transition-all ${
                 videoFitMode === 'contain' && effectiveScale <= 1.05
-                  ? 'bg-cyan-500/20 text-cyan-300 font-bold'
+                  ? 'bg-zinc-800 text-white shadow-xs font-semibold'
                   : 'text-zinc-400 hover:text-white'
               }`}
-              title="Fit Entire Video (Full picture & all people visible)"
+              title="Fit Entire Video (Full picture visible)"
             >
               Fit
             </button>
@@ -339,12 +388,12 @@ export const CanvasPreview: React.FC = () => {
                 setVideoScale(1.78);
                 setVideoPosition({ x: 0, y: 0 });
               }}
-              className={`px-2 py-0.5 rounded font-medium transition-colors ${
+              className={`px-2.5 py-0.5 rounded-md font-medium transition-all ${
                 videoFitMode === 'cover' || effectiveScale > 1.2
-                  ? 'bg-cyan-500/20 text-cyan-300 font-bold'
+                  ? 'bg-zinc-800 text-white shadow-xs font-semibold'
                   : 'text-zinc-400 hover:text-white'
               }`}
-              title="Fill 9:16 Frame (Crop to vertical shorts)"
+              title="Fill Frame (Crop to vertical short)"
             >
               Fill
             </button>
@@ -356,19 +405,19 @@ export const CanvasPreview: React.FC = () => {
           {/* TikTok Safe Area Guides Toggle */}
           <button
             onClick={() => setSafeAreaGuides(!safeAreaGuides)}
-            className={`flex items-center space-x-1 px-2 py-0.5 rounded text-[11px] font-semibold transition-all ${
+            className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all ${
               safeAreaGuides
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
+                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-xs'
+                : 'text-zinc-400 hover:text-zinc-200 border border-transparent hover:bg-white/[0.04]'
             }`}
             title="Toggle TikTok / Instagram Reels Safe Margin Guides"
           >
-            <Shield className="w-3 h-3" />
+            <Shield className="w-3 h-3 text-indigo-400" />
             <span>Safe Guides</span>
           </button>
 
           {/* Zoom Selector */}
-          <div className="flex items-center space-x-1 bg-[#1c1c20] border border-[#27272a] rounded px-1.5 py-0.5 text-[11px] text-zinc-300">
+          <div className="flex items-center space-x-1 bg-zinc-950/80 border border-white/[0.06] rounded-lg px-2 py-0.5 text-[11px] text-zinc-300">
             <ZoomIn className="w-3 h-3 text-zinc-400" />
             <select
               value={previewZoom}
@@ -385,198 +434,219 @@ export const CanvasPreview: React.FC = () => {
       </div>
 
       {/* Center Stage Video Monitor */}
-      <div className="flex-1 flex items-center justify-center w-full overflow-hidden p-2 min-h-0">
-        <div
-          style={{
-            aspectRatio: viewportStyles.aspectRatio,
-            maxHeight: viewportStyles.maxHeight,
-            maxWidth: viewportStyles.maxWidth,
-            height: '100%',
-            width: 'auto',
-          }}
-          className="relative bg-black rounded-xl overflow-hidden shadow-2xl border border-[#27272a] flex items-center justify-center transition-all duration-150"
-        >
-          {videoUrl ? (
-            <>
-              {/* Studio Backdrop for 9:16 Shorts preview */}
-              {aspectRatio === '9:16' && (
-                <div className="absolute inset-0 overflow-hidden pointer-events-none bg-gradient-to-b from-zinc-950 via-[#18181c] to-zinc-950" />
-              )}
+      <div className="flex-1 flex items-center justify-center w-full overflow-hidden p-2 min-h-0 relative">
+        {videoUrl ? (
+          <div
+            style={{
+              aspectRatio: viewportStyles.aspectRatio,
+              maxHeight: viewportStyles.maxHeight,
+              maxWidth: viewportStyles.maxWidth,
+              height: '100%',
+              width: 'auto',
+            }}
+            className="relative bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/[0.08] flex items-center justify-center transition-all duration-150 ring-1 ring-white/5"
+          >
+            {/* Studio Backdrop for 9:16 Shorts preview */}
+            {aspectRatio === '9:16' && (
+              <div className="absolute inset-0 overflow-hidden pointer-events-none bg-gradient-to-b from-[#101014] via-[#09090b] to-[#101014]" />
+            )}
 
-              {/* Main Video Element with Centered Transform */}
-              <video
-                ref={videoRef}
-                src={videoUrl}
-                className={`w-full h-full relative z-10 transition-transform duration-75 ${
-                  videoFitMode === 'cover' ? 'object-cover' : 'object-contain'
-                }`}
-                style={{
-                  transform: `translate(${videoPosition.x}px, ${videoPosition.y}px) scale(${effectiveScale})`,
-                  transformOrigin: 'center center',
-                }}
-                playsInline
-                onTimeUpdate={handleTimeUpdate}
-                onLoadedMetadata={handleLoadedMetadata}
-                onEnded={() => setIsPlaying(false)}
-                onClick={togglePlay}
-              />
-            </>
-          ) : (
-            <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
+            {/* Main Video Element with Centered Transform */}
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              className={`w-full h-full relative z-10 transition-transform duration-75 ${
+                videoFitMode === 'cover' ? 'object-cover' : 'object-contain'
+              }`}
+              style={{
+                transform: `translate(${videoPosition.x}px, ${videoPosition.y}px) scale(${effectiveScale})`,
+                transformOrigin: 'center center',
               }}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const file = e.dataTransfer.files?.[0];
-                if (file && (file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|webm|mkv|avi)$/i))) {
-                  const url = URL.createObjectURL(file);
-                  setVideo(file, url, file.name);
-                  startTranscription(file, selectedModel, selectedLanguage);
-                }
-              }}
-              className="flex flex-col items-center justify-center text-zinc-400 space-y-3 p-6 text-center border-2 border-dashed border-zinc-700/60 hover:border-cyan-500/60 rounded-2xl m-4 transition-all duration-200"
-            >
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
-                <Upload className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white mb-0.5">Drop Video Here</h4>
-                <p className="text-[11px] text-zinc-400">Auto-detects speech, captions & viral clips</p>
-              </div>
-              <label className="px-3.5 py-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs cursor-pointer shadow-md shadow-cyan-500/20 transition-all active:scale-95">
-                Browse Video
-                <input
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const url = URL.createObjectURL(file);
-                      setVideo(file, url, file.name);
-                      startTranscription(file, selectedModel, selectedLanguage);
-                    }
-                  }}
-                />
-              </label>
-            </div>
-          )}
+              playsInline
+              onTimeUpdate={handleTimeUpdate}
+              onSeeked={handleSeeked}
+              onLoadedMetadata={handleLoadedMetadata}
+              onEnded={() => setIsPlaying(false)}
+              onClick={togglePlay}
+            />
 
-          {/* Safe Area Guides Overlay (TikTok / Reels / Shorts margin boundaries) */}
-          {safeAreaGuides && (
-            <div className="absolute inset-0 pointer-events-none z-30 flex flex-col justify-between p-4">
-              {/* Top Bar Safe line */}
-              <div className="border-b border-dashed border-cyan-400/40 pb-1 text-[9px] text-cyan-400 font-mono">
-                Top Safe Margin
-              </div>
-
-              {/* Right Sidebar Icons boundary */}
-              <div className="absolute right-2 top-1/4 bottom-1/4 w-10 border-l border-dashed border-cyan-400/40 flex flex-col items-center justify-center text-[8px] text-cyan-400 font-mono text-center">
-                TikTok Icons
-              </div>
-
-              {/* Bottom Username & Captions Safe line */}
-              <div className="border-t border-dashed border-cyan-400/40 pt-1 text-[9px] text-cyan-400 font-mono flex justify-between">
-                <span>Captions Safe Zone</span>
-                <span>Bottom Safe Margin</span>
-              </div>
-            </div>
-          )}
-
-          {/* Live B-Roll Overlay (if active at currentTime) */}
-          {activeBroll && (
-            <div className="absolute inset-0 z-20 animate-fade pointer-events-none">
-              <video
-                src={activeBroll.video_url || activeBroll.preview_url}
-                autoPlay
-                loop
-                muted
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-amber-400 font-bold uppercase tracking-wider border border-amber-500/30">
-                B-Roll: {activeBroll.keyword}
-              </div>
-            </div>
-          )}
-
-          {/* Subtitle Overlay */}
-          {currentBlock && (
-            <div className={`absolute inset-x-0 ${positionClass} z-20 flex flex-col items-center justify-center px-4 pointer-events-none`}>
-              {/* Submagic Style Floating 3D Animated Emoji */}
-              {activeEmoji && (
-                <div
-                  key={`${currentBlock.start}-${activeEmoji}`}
-                  className="mb-2 animate-emoji-pop select-none pointer-events-none z-30"
-                >
-                  <span className="text-4xl sm:text-5xl filter drop-shadow-[0_8px_20px_rgba(0,0,0,0.85)] inline-block transform">
-                    {activeEmoji}
-                  </span>
+            {/* Safe Area Guides Overlay (TikTok / Reels / Shorts margin boundaries) */}
+            {safeAreaGuides && (
+              <div className="absolute inset-0 pointer-events-none z-30 flex flex-col justify-between p-4">
+                {/* Top Bar Safe line */}
+                <div className="border-b border-dashed border-indigo-400/40 pb-1 text-[9px] text-indigo-400 font-mono">
+                  Top Safe Margin
                 </div>
-              )}
 
-              <div
-                className={`flex flex-wrap items-center justify-center gap-1.5 transition-all duration-100 ${
-                  activePreset.bgBox ? 'px-3 py-1.5 rounded-lg' : ''
-                }`}
-                style={{
-                  backgroundColor: activePreset.bgBox ? activePreset.bgBoxColor : 'transparent',
-                }}
-              >
-                {currentBlock.words.map((wordObj) => {
-                  const isWordSpeaking = currentTime >= wordObj.start && currentTime <= wordObj.end + 0.05;
-                  const isHighlighted = isWordSpeaking || wordObj.keyword;
-                  const textColor = isHighlighted ? activePreset.highlightColor : activePreset.primaryColor;
-                  const casedWord = formatCasing(wordObj.word, activePreset.textCasing);
+                {/* Right Sidebar Icons boundary */}
+                <div className="absolute right-2 top-1/4 bottom-1/4 w-10 border-l border-dashed border-indigo-400/40 flex flex-col items-center justify-center text-[8px] text-indigo-400 font-mono text-center">
+                  TikTok Icons
+                </div>
 
-                  const outlineStyle = activePreset.outlineWidth > 0
-                    ? `${activePreset.outlineWidth}px ${activePreset.outlineColor}`
-                    : 'none';
-
-                  const shadowStyle = activePreset.shadowDepth > 0
-                    ? `0px ${activePreset.shadowDepth}px ${activePreset.shadowDepth * 2}px ${activePreset.shadowColor}`
-                    : 'none';
-
-                  let animationClass = '';
-                  if (isWordSpeaking) {
-                    if (activePreset.animationTrigger === 'pop') animationClass = 'animate-pop';
-                    else if (activePreset.animationTrigger === 'bounce') animationClass = 'animate-bounce';
-                    else if (activePreset.animationTrigger === 'fade') animationClass = 'animate-fade';
-                  }
-
-                  return (
-                    <span
-                      key={wordObj.id}
-                      className={`inline-block font-black tracking-tight leading-none transition-transform ${animationClass}`}
-                      style={{
-                        fontFamily: `${activePreset.fontFamily}, 'Montserrat', 'Noto Nastaliq Urdu', 'Segoe UI', sans-serif`,
-                        fontSize: `${Math.round(activePreset.fontSize * (aspectRatio === '9:16' ? 0.72 : 0.85))}px`,
-                        fontWeight: activePreset.fontWeight,
-                        color: textColor,
-                        WebkitTextStroke: outlineStyle !== 'none' ? outlineStyle : undefined,
-                        paintOrder: 'stroke fill',
-                        textShadow: shadowStyle !== 'none' ? shadowStyle : undefined,
-                      }}
-                    >
-                      {casedWord}
-                    </span>
-                  );
-                })}
+                {/* Bottom Username & Captions Safe line */}
+                <div className="border-t border-dashed border-indigo-400/40 pt-1 text-[9px] text-indigo-400 font-mono flex justify-between">
+                  <span>Captions Safe Zone</span>
+                  <span>Bottom Safe Margin</span>
+                </div>
               </div>
+            )}
+
+            {/* Live B-Roll Overlay (if active at currentTime) */}
+            {activeBroll && (
+              <div className="absolute inset-0 z-20 animate-fade pointer-events-none">
+                <video
+                  src={activeBroll.video_url || activeBroll.preview_url}
+                  autoPlay
+                  loop
+                  muted
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-amber-400 font-bold uppercase tracking-wider border border-amber-500/30">
+                  B-Roll: {activeBroll.keyword}
+                </div>
+              </div>
+            )}
+
+            {/* Subtitle Overlay */}
+            {currentBlock && (
+              <div className={`absolute inset-x-0 ${positionClass} z-20 flex flex-col items-center justify-center px-4 pointer-events-none`}>
+                {/* Submagic Style Floating 3D Animated Emoji */}
+                {activeEmoji && (
+                  <div
+                    key={`${currentBlock.start}-${activeEmoji}`}
+                    className="mb-2 animate-emoji-pop select-none pointer-events-none z-30"
+                  >
+                    <span className="text-4xl sm:text-5xl filter drop-shadow-[0_8px_20px_rgba(0,0,0,0.85)] inline-block transform">
+                      {activeEmoji}
+                    </span>
+                  </div>
+                )}
+
+                <div
+                  className={`flex flex-wrap items-center justify-center gap-1.5 transition-all duration-100 ${
+                    activePreset.bgBox ? 'px-3 py-1.5 rounded-lg' : ''
+                  }`}
+                  style={{
+                    backgroundColor: activePreset.bgBox ? activePreset.bgBoxColor : 'transparent',
+                  }}
+                >
+                  {currentBlock.words.map((wordObj) => {
+                    const isWordSpeaking = currentTime >= wordObj.start && currentTime <= wordObj.end + 0.05;
+                    const isHighlighted = isWordSpeaking || wordObj.keyword;
+                    const textColor = isHighlighted ? activePreset.highlightColor : activePreset.primaryColor;
+                    const casedWord = formatCasing(wordObj.word, activePreset.textCasing);
+
+                    const outlineStyle = activePreset.outlineWidth > 0
+                      ? `${activePreset.outlineWidth}px ${activePreset.outlineColor}`
+                      : 'none';
+
+                    const shadowStyle = activePreset.shadowDepth > 0
+                      ? `0px ${activePreset.shadowDepth}px ${activePreset.shadowDepth * 2}px ${activePreset.shadowColor}`
+                      : 'none';
+
+                    let animationClass = '';
+                    if (isWordSpeaking) {
+                      if (activePreset.animationTrigger === 'pop') animationClass = 'animate-pop';
+                      else if (activePreset.animationTrigger === 'bounce') animationClass = 'animate-bounce';
+                      else if (activePreset.animationTrigger === 'fade') animationClass = 'animate-fade';
+                    }
+
+                    return (
+                      <span
+                        key={wordObj.id}
+                        className={`inline-block font-black tracking-tight leading-none transition-transform ${animationClass}`}
+                        style={{
+                          fontFamily: `${activePreset.fontFamily}, 'Montserrat', 'Noto Nastaliq Urdu', 'Segoe UI', sans-serif`,
+                          fontSize: `${Math.round(activePreset.fontSize * (aspectRatio === '9:16' ? 0.72 : 0.85))}px`,
+                          fontWeight: activePreset.fontWeight,
+                          color: textColor,
+                          WebkitTextStroke: outlineStyle !== 'none' ? outlineStyle : undefined,
+                          paintOrder: 'stroke fill',
+                          textShadow: shadowStyle !== 'none' ? shadowStyle : undefined,
+                        }}
+                      >
+                        {casedWord}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Expansive macOS Studio Import Hero Dropzone */
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const file = e.dataTransfer.files?.[0];
+              if (file && (file.type.startsWith('video/') || file.name.match(/\.(mp4|mov|webm|mkv|avi)$/i))) {
+                const url = URL.createObjectURL(file);
+                setVideo(file, url, file.name);
+                startTranscription(file, selectedModel, selectedLanguage);
+              }
+            }}
+            className="w-full max-w-xl p-8 rounded-3xl bg-zinc-900/60 backdrop-blur-2xl border border-white/[0.08] shadow-2xl flex flex-col items-center text-center relative overflow-hidden group hover:border-indigo-500/40 transition-all duration-300 ring-1 ring-white/[0.05]"
+          >
+            {/* Ambient Background Radial Glow */}
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Floating Icon Badge */}
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 via-sky-500/10 to-transparent border border-white/[0.12] flex items-center justify-center text-indigo-400 shadow-xl shadow-indigo-500/15 mb-4 group-hover:scale-105 transition-transform duration-300 ring-1 ring-white/10">
+              <Upload className="w-7 h-7 text-indigo-300 stroke-[2.2]" />
             </div>
-          )}
-        </div>
+
+            <h3 className="text-lg font-bold text-white mb-1.5 font-['Plus_Jakarta_Sans',sans-serif] tracking-tight">
+              Drop Video to Start Editing
+            </h3>
+            <p className="text-xs text-zinc-400 max-w-md leading-relaxed mb-5">
+              CapShorts transcribes speech in ~3s, highlights viral hooks, removes dead air, and crafts 9:16 vertical shorts automatically.
+            </p>
+
+            <label className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-sky-500 hover:from-indigo-400 hover:to-sky-400 text-white font-semibold text-xs cursor-pointer shadow-lg shadow-indigo-500/25 border border-indigo-400/30 transition-all active:scale-95 mb-4 tracking-wide">
+              <Upload className="w-4 h-4 text-white" />
+              <span>Import Video File</span>
+              <input
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const url = URL.createObjectURL(file);
+                    setVideo(file, url, file.name);
+                    startTranscription(file, selectedModel, selectedLanguage);
+                  }
+                }}
+              />
+            </label>
+
+            {/* Supported Formats Pills */}
+            <div className="flex items-center space-x-2 text-[10px] text-zinc-500">
+              <span>Supports:</span>
+              <span className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.06] text-zinc-400 font-mono">MP4</span>
+              <span className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.06] text-zinc-400 font-mono">MOV / ProRes</span>
+              <span className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.06] text-zinc-400 font-mono">WebM</span>
+              <span className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.06] text-zinc-400 font-mono">MKV</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Bottom Transport Controls Bar */}
-      <div className="w-full flex items-center justify-between px-4 py-2 bg-[#141416] border border-[#27272a] rounded-xl text-zinc-300 z-20 flex-shrink-0 shadow-lg">
+      <div className="w-full flex items-center justify-between px-4 py-2 bg-zinc-900/80 backdrop-blur-xl border border-white/[0.08] rounded-xl text-zinc-300 z-20 flex-shrink-0 shadow-lg">
         {/* Left: Timecode Readout */}
-        <div className="flex items-center space-x-1 font-mono text-xs text-zinc-300">
-          <span className="text-cyan-400 font-bold">{formatTimecode(currentTime)}</span>
+        <div className="flex items-center space-x-1.5 font-mono text-xs text-zinc-300">
+          <span className="text-white font-bold bg-white/[0.06] px-2 py-0.5 rounded border border-white/[0.08] tracking-wider">
+            {formatTimecode(currentTime)}
+          </span>
           <span className="text-zinc-600">/</span>
-          <span className="text-zinc-500">{formatTimecode(duration)}</span>
+          <span className="text-zinc-400">{formatTimecode(duration)}</span>
         </div>
 
         {/* Center: Frame-by-Frame & Play Transport Controls */}
@@ -584,29 +654,29 @@ export const CanvasPreview: React.FC = () => {
           {/* Step Back 1 frame */}
           <button
             onClick={() => stepFrame(-1)}
-            className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/[0.08] text-zinc-400 hover:text-zinc-100 transition-colors"
             title="Step Back 1 Frame (-1/30s)"
           >
             <SkipBack className="w-4 h-4" />
           </button>
 
-          {/* Main Play / Pause Button */}
+          {/* Main Play / Pause Button (Apple Studio White Pill) */}
           <button
             onClick={togglePlay}
-            className="w-9 h-9 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black flex items-center justify-center shadow-lg shadow-cyan-500/25 transition-transform active:scale-95"
+            className="w-9 h-9 rounded-full bg-white hover:bg-zinc-200 text-black flex items-center justify-center shadow-lg shadow-white/15 transition-all active:scale-95 ring-2 ring-white/20"
             title="Play / Pause (Space)"
           >
             {isPlaying ? (
-              <Pause className="w-4 h-4 fill-black stroke-[2.5]" />
+              <Pause className="w-4 h-4 fill-black stroke-[2.2]" />
             ) : (
-              <Play className="w-4 h-4 fill-black ml-0.5 stroke-[2.5]" />
+              <Play className="w-4 h-4 fill-black ml-0.5 stroke-[2.2]" />
             )}
           </button>
 
           {/* Step Forward 1 frame */}
           <button
             onClick={() => stepFrame(1)}
-            className="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/[0.08] text-zinc-400 hover:text-zinc-100 transition-colors"
             title="Step Forward 1 Frame (+1/30s)"
           >
             <SkipForward className="w-4 h-4" />
@@ -618,11 +688,11 @@ export const CanvasPreview: React.FC = () => {
           <div className="flex items-center space-x-1.5">
             <button
               onClick={() => setIsMuted(!isMuted)}
-              className="p-1 hover:text-cyan-400 text-zinc-400 transition-colors"
+              className="p-1.5 hover:bg-white/[0.08] rounded-md hover:text-white text-zinc-400 transition-colors"
               title="Mute / Unmute"
             >
               {isMuted || videoVolume === 0 ? (
-                <VolumeX className="w-4 h-4" />
+                <VolumeX className="w-4 h-4 text-red-400" />
               ) : (
                 <Volume2 className="w-4 h-4" />
               )}
@@ -638,7 +708,7 @@ export const CanvasPreview: React.FC = () => {
                 setVideoVolume(val);
                 setIsMuted(val === 0);
               }}
-              className="w-16 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+              className="w-16 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-400"
             />
           </div>
 
@@ -652,7 +722,7 @@ export const CanvasPreview: React.FC = () => {
                 }
               }
             }}
-            className="p-1 hover:text-cyan-400 text-zinc-400 transition-colors"
+            className="p-1.5 hover:bg-white/[0.08] rounded-md hover:text-white text-zinc-400 transition-colors"
             title="Fullscreen Preview"
           >
             <Maximize2 className="w-4 h-4" />

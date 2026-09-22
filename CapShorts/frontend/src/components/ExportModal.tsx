@@ -1,9 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { X, Share2, CheckCircle2, Download, Sparkles, FolderDown, Zap, Flame, Loader2 } from 'lucide-react';
+import { X, Share2, CheckCircle2, Download, Sparkles, FolderDown, Zap, Flame, Loader2, FileText } from 'lucide-react';
 import { useVideoStore } from '../store/useVideoStore';
 import { apiUrl } from '../config';
 import templatesData from '../data/templates.json';
 import { SubtitlePreset } from '../types';
+
+const formatSrtTime = (seconds: number) => {
+  const s = Math.max(0, seconds);
+  const hrs = Math.floor(s / 3600);
+  const mins = Math.floor((s % 3600) / 60);
+  const secs = Math.floor(s % 60);
+  const millis = Math.min(999, Math.round((s - Math.floor(s)) * 1000));
+  return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')},${String(millis).padStart(3, '0')}`;
+};
+
+const formatVttTime = (seconds: number) => {
+  const s = Math.max(0, seconds);
+  const hrs = Math.floor(s / 3600);
+  const mins = Math.floor((s % 3600) / 60);
+  const secs = Math.floor(s % 60);
+  const millis = Math.min(999, Math.round((s - Math.floor(s)) * 1000));
+  return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(millis).padStart(3, '0')}`;
+};
+
+const chunkTranscript = (words: any[]) => {
+  const sorted = [...words].sort((a, b) => (a.start || 0) - (b.start || 0));
+  const blocks: { start: number; end: number; text: string }[] = [];
+  let curr: any[] = [];
+  for (const w of sorted) {
+    if (!w.word) continue;
+    curr.push(w);
+    const lineLen = curr.map(x => x.word).join(' ').length;
+    const isPunct = /[.!?]$/.test(String(w.word).trim());
+    if (curr.length >= 6 || lineLen >= 36 || isPunct) {
+      blocks.push({
+        start: curr[0].start || 0,
+        end: curr[curr.length - 1].end || curr[0].start + 1,
+        text: curr.map(x => String(x.word).trim()).join(' ')
+      });
+      curr = [];
+    }
+  }
+  if (curr.length > 0) {
+    blocks.push({
+      start: curr[0].start || 0,
+      end: curr[curr.length - 1].end || curr[0].start + 1,
+      text: curr.map(x => String(x.word).trim()).join(' ')
+    });
+  }
+  return blocks;
+};
+
+const formatSrtClient = (words: any[]) => {
+  const blocks = chunkTranscript(words);
+  return blocks.map((b, i) => `${i + 1}\n${formatSrtTime(b.start)} --> ${formatSrtTime(b.end)}\n${b.text}\n`).join('\n');
+};
+
+const formatVttClient = (words: any[]) => {
+  const blocks = chunkTranscript(words);
+  return 'WEBVTT\n\n' + blocks.map((b, i) => `${i + 1}\n${formatVttTime(b.start)} --> ${formatVttTime(b.end)}\n${b.text}\n`).join('\n');
+};
 
 export const ExportModal: React.FC = () => {
   const {
@@ -33,8 +89,9 @@ export const ExportModal: React.FC = () => {
   );
   const [fps, setFps] = useState<number>(30);
   const [outputFilename, setOutputFilename] = useState(
-    activeClip ? `viral_short_${activeClip.duration}s.mp4` : 'opencaption_export.mp4'
+    activeClip ? `viral_short_${activeClip.duration}s.mp4` : 'capshorts_export.mp4'
   );
+  const [exportingSubtitle, setExportingSubtitle] = useState<'srt' | 'vtt' | null>(null);
 
   useEffect(() => {
     if (activeClip) {
@@ -67,6 +124,53 @@ export const ExportModal: React.FC = () => {
       window.open(exportResultUrl, '_blank');
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleExportSubtitles = async (format: 'srt' | 'vtt') => {
+    if (!transcript || transcript.length === 0) return;
+    setExportingSubtitle(format);
+    try {
+      const presets = templatesData as SubtitlePreset[];
+      const preset = presets.find(p => p.id === activeTemplateId) || presets[0];
+
+      let content = '';
+      try {
+        const res = await fetch(apiUrl('/api/export-subtitles'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            transcript,
+            format,
+            preset,
+            custom_overrides: customStyleOverrides
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          content = data.content;
+        } else {
+          content = format === 'srt' ? formatSrtClient(transcript) : formatVttClient(transcript);
+        }
+      } catch {
+        content = format === 'srt' ? formatSrtClient(transcript) : formatVttClient(transcript);
+      }
+
+      const mimeType = format === 'srt' ? 'application/x-subrip' : 'text/vtt';
+      const blob = new Blob([content], { type: mimeType });
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      const baseName = outputFilename.replace(/\.[^/.]+$/, "") || 'capshorts_captions';
+      link.download = `${baseName}.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    } catch (e) {
+      console.warn("Subtitle export error:", e);
+    } finally {
+      setExportingSubtitle(null);
     }
   };
 
@@ -288,6 +392,48 @@ export const ExportModal: React.FC = () => {
             </div>
           )}
 
+          {/* Subtitle Export Section */}
+          <div className="p-3 bg-zinc-950/60 border border-zinc-800/80 rounded-xl space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-1.5 text-zinc-300 font-semibold">
+                <FileText className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Export Subtitles Only</span>
+              </div>
+              <span className="text-[10px] text-zinc-500">Standalone .SRT / .VTT</span>
+            </div>
+            <p className="text-[11px] text-zinc-400">
+              Download accurate time-aligned captions to upload directly to YouTube Shorts, TikTok, or import into Premiere & DaVinci Resolve.
+            </p>
+            <div className="flex items-center space-x-2 pt-1">
+              <button
+                type="button"
+                onClick={() => handleExportSubtitles('srt')}
+                disabled={!transcript || transcript.length === 0 || exportingSubtitle !== null}
+                className="flex-1 flex items-center justify-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium transition-all active:scale-95 disabled:opacity-40"
+              >
+                {exportingSubtitle === 'srt' ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Download className="w-3.5 h-3.5 text-zinc-400" />
+                )}
+                <span>Download .SRT</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleExportSubtitles('vtt')}
+                disabled={!transcript || transcript.length === 0 || exportingSubtitle !== null}
+                className="flex-1 flex items-center justify-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium transition-all active:scale-95 disabled:opacity-40"
+              >
+                {exportingSubtitle === 'vtt' ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Download className="w-3.5 h-3.5 text-zinc-400" />
+                )}
+                <span>Download .VTT</span>
+              </button>
+            </div>
+          </div>
+
           {/* Creator AdSense / Sponsor Card Placeholder */}
           <div className="p-3 bg-gradient-to-r from-zinc-950 to-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -295,7 +441,7 @@ export const ExportModal: React.FC = () => {
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
-                <p className="font-semibold text-zinc-300">OpenCaption Community Edition</p>
+                <p className="font-semibold text-zinc-300">CapShorts Community Edition</p>
                 <p className="text-[10px] text-zinc-500">Free, Local-First, Open-Source Alternative</p>
               </div>
             </div>

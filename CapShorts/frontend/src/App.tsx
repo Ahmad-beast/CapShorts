@@ -101,7 +101,7 @@ export const App: React.FC = () => {
   }, [handleKeyDown]);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#121214] text-zinc-100 overflow-hidden font-sans select-none">
+    <div className="flex flex-col h-screen w-screen bg-[#09090b] text-zinc-100 overflow-hidden font-['Plus_Jakarta_Sans',Inter,-apple-system,BlinkMacSystemFont,sans-serif] select-none">
       {/* 1. CapCut Studio Top Bar */}
       <CapCutHeader />
 
@@ -124,37 +124,42 @@ export const App: React.FC = () => {
       <ExportModal />
       <SettingsModal />
 
-      {/* Transcription Loading Overlay */}
+      {/* macOS Frosted Glass Transcription Loading Card */}
       {isTranscribing && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade select-none">
-          <div className="relative mb-4">
-            <div className="w-16 h-16 rounded-full border-4 border-cyan-500/20 border-t-cyan-400 animate-spin flex items-center justify-center"></div>
-            <Sparkles className="w-7 h-7 text-cyan-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-fade select-none">
+          <div className="w-full max-w-md p-8 rounded-3xl bg-zinc-900/90 backdrop-blur-2xl border border-white/[0.12] shadow-2xl flex flex-col items-center relative overflow-hidden">
+            {/* Ambient Radial Glow */}
+            <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-64 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative mb-5">
+              <div className="w-16 h-16 rounded-full border-4 border-white/[0.08] border-t-indigo-500 animate-spin flex items-center justify-center"></div>
+              <Sparkles className="w-6 h-6 text-indigo-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+            </div>
+
+            <h3 className="text-base font-bold text-white tracking-tight mb-1.5 font-['Plus_Jakarta_Sans',sans-serif]">
+              Transcribing Speech & Generating Captions
+            </h3>
+            <p className="text-xs text-indigo-300/90 mb-4 font-mono max-w-sm truncate bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+              {transcribingStep || "Processing audio with Groq Whisper AI..."}
+            </p>
+
+            {/* Animated Progress Bar */}
+            <div className="w-full bg-black/40 rounded-full h-2 overflow-hidden mb-2.5 p-0.5 border border-white/[0.06]">
+              <div
+                className="bg-gradient-to-r from-indigo-500 via-sky-400 to-emerald-400 h-full rounded-full transition-all duration-300"
+                style={{ width: `${Math.max(5, transcribeProgress)}%` }}
+              />
+            </div>
+            <span className="text-[11px] font-mono text-zinc-400 mb-5">{transcribeProgress}% completed</span>
+
+            <button
+              onClick={cancelTranscription}
+              className="flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 text-xs font-semibold border border-white/[0.08] transition-all"
+            >
+              <X className="w-3.5 h-3.5 text-red-400" />
+              <span>Cancel Transcription</span>
+            </button>
           </div>
-
-          <h3 className="text-base font-bold text-white tracking-wide mb-1">
-            Transcribing Video Speech & Generating Captions
-          </h3>
-          <p className="text-xs text-cyan-400 mb-3 font-mono max-w-sm truncate">
-            {transcribingStep || "Processing audio with Groq Whisper AI..."}
-          </p>
-
-          {/* Animated Progress Bar */}
-          <div className="w-full max-w-xs bg-zinc-800 rounded-full h-2 overflow-hidden mb-2">
-            <div
-              className="bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${Math.max(5, transcribeProgress)}%` }}
-            />
-          </div>
-          <span className="text-[11px] font-mono text-zinc-400 mb-4">{transcribeProgress}% completed</span>
-
-          <button
-            onClick={cancelTranscription}
-            className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs border border-zinc-700 transition-colors"
-          >
-            <X className="w-3.5 h-3.5 text-red-400" />
-            <span>Cancel Transcription</span>
-          </button>
         </div>
       )}
     </div>
