@@ -1,43 +1,117 @@
 // CapShorts — Minimalist High-End SaaS Client Logic
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Interactive Studio Preset Switcher with Distinct Kinetic Animations
+  // 1. Preset Data & Kinetic Animation Engine
   const tabButtons = document.querySelectorAll('.studio-tab-btn');
   const captionDisplay = document.getElementById('liveCaptionDisplay');
+  const btnTogglePlay = document.getElementById('btnTogglePlay');
+  const btnReplay = document.getElementById('btnReplay');
+  const playLabel = document.getElementById('playLabel');
 
-  const presetData = {
+  const presetConfigs = {
     mrbeast: {
-      html: 'UNLOCK <span style="color: #facc15;">MILLIONS</span> OF VIEWS',
-      styleClass: 'preset-mrbeast'
+      className: 'preset-mrbeast',
+      phrases: [
+        'UNLOCK <span style="color: #facc15;">MILLIONS</span> OF VIEWS',
+        'THIS VIDEO <span style="color: #ef4444;">EXPLODED</span> TO 10M',
+        'STOP <span style="color: #facc15;">WASTING</span> YOUR TIME'
+      ]
     },
     hormozi: {
-      html: 'STOP PAYING <span class="word-jump" style="color: #ffffff; background: #0284c7; padding: 2px 6px; border-radius: 4px;">$30/MO</span> FOR APPS',
-      styleClass: 'preset-hormozi'
+      className: 'preset-hormozi',
+      phrases: [
+        'STOP PAYING <span class="word-jump" style="color: #ffffff; background: #0284c7; padding: 2px 6px; border-radius: 4px;">$30/MO</span> FOR APPS',
+        'GET <span class="word-jump" style="color: #ffffff; background: #0284c7; padding: 2px 6px; border-radius: 4px;">10X</span> RETENTION INSTANTLY',
+        'RUN IT <span class="word-jump" style="color: #ffffff; background: #0284c7; padding: 2px 6px; border-radius: 4px;">LOCALLY</span> ON YOUR PC'
+      ]
     },
     vox: {
-      html: 'The future of video editing is <span class="highlighter-marker">local-first.</span>',
-      styleClass: 'preset-vox'
+      className: 'preset-vox',
+      phrases: [
+        'The future of video is <span class="highlighter-marker">local-first.</span>',
+        'Zero cloud queues, <span class="highlighter-marker">instant AI.</span>',
+        'Studio-grade exports <span class="highlighter-marker">without limits.</span>'
+      ]
     },
     neon: {
-      html: 'NVENC GPU // <span style="color: #ffffff;">16X ACCELERATED</span>',
-      styleClass: 'preset-neon'
+      className: 'preset-neon',
+      phrases: [
+        'NVENC GPU // <span style="color: #ffffff;">16X ACCELERATED</span>',
+        'HARDWARE ENCODER // <span style="color: #ffffff;">ACTIVE</span>',
+        'WHISPER TURBO // <span style="color: #ffffff;">0.00ms SYNC</span>'
+      ]
     }
   };
 
+  let currentPreset = 'mrbeast';
+  let phraseIndex = 0;
+  let isPlaying = true;
+  let loopInterval = null;
+
+  function applyActivePhrase(animate = true) {
+    if (!captionDisplay) return;
+    const config = presetConfigs[currentPreset];
+    const phrase = config.phrases[phraseIndex % config.phrases.length];
+
+    captionDisplay.className = config.className;
+    captionDisplay.innerHTML = phrase;
+
+    if (animate) {
+      captionDisplay.style.opacity = '0';
+      captionDisplay.style.transform = 'translateY(6px)';
+      requestAnimationFrame(() => {
+        captionDisplay.style.transition = 'opacity 220ms ease, transform 220ms ease';
+        captionDisplay.style.opacity = '1';
+        captionDisplay.style.transform = 'translateY(0)';
+      });
+    }
+  }
+
+  function startAutoLoop() {
+    if (loopInterval) clearInterval(loopInterval);
+    loopInterval = setInterval(() => {
+      if (!isPlaying) return;
+      phraseIndex++;
+      applyActivePhrase(true);
+    }, 2800);
+  }
+
+  // Handle Preset Switching
   tabButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       tabButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
       const presetKey = btn.getAttribute('data-preset');
-      const data = presetData[presetKey];
-
-      if (data && captionDisplay) {
-        captionDisplay.className = data.styleClass;
-        captionDisplay.innerHTML = data.html;
+      if (presetConfigs[presetKey]) {
+        currentPreset = presetKey;
+        phraseIndex = 0;
+        applyActivePhrase(true);
       }
     });
   });
+
+  // Micro Play/Pause Toggle
+  if (btnTogglePlay) {
+    btnTogglePlay.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      if (playLabel) {
+        playLabel.textContent = isPlaying ? 'Auto-Loop: Playing' : 'Auto-Loop: Paused';
+      }
+      btnTogglePlay.style.borderColor = isPlaying ? '#27272a' : 'var(--accent)';
+    });
+  }
+
+  // Micro Replay Button
+  if (btnReplay) {
+    btnReplay.addEventListener('click', () => {
+      applyActivePhrase(true);
+    });
+  }
+
+  // Initialize loop
+  applyActivePhrase(false);
+  startAutoLoop();
 
   // 2. FAQ Accordion Logic
   const faqRows = document.querySelectorAll('.faq-row-item');
@@ -47,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     trigger.addEventListener('click', () => {
       const isOpen = row.classList.contains('open');
-      // Close other rows for clean single-view
       faqRows.forEach(r => r.classList.remove('open'));
       if (!isOpen) {
         row.classList.add('open');
