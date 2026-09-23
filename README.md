@@ -92,6 +92,10 @@ Inspired by top creators and media studios:
 - Hardware-accelerated GPU export using **NVIDIA NVENC, Intel QuickSync, AMD AMF, and Apple VideoToolbox**.
 - Ultra-optimized vertical short renderer with cinematic blurred backgrounds that render in **5 to 10 seconds** instead of minutes.
 
+### 6. 🔄 In-App 1-Click Auto-Updater
+- **Zero-Friction Updates**: Built-in update checker in Settings that verifies the latest repository releases in real-time.
+- **1-Click Update**: Automatically pulls the latest features and refreshes your workspace in 2-3 seconds without having to manually reinstall.
+
 ---
 
 ## ⌨️ Keyboard Shortcuts
@@ -146,7 +150,14 @@ cd CapShorts
 ```
 
 ### 2. Run the App
-**Windows 1-Click:**
+**macOS (1-Click):**
+Double-click `Run-CapShorts.command` in Finder or run:
+```bash
+./run.sh
+```
+
+**Windows (1-Click):**
+Double-click `run.bat` or run:
 ```cmd
 run.bat
 ```
