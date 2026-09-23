@@ -1,9 +1,9 @@
 @echo off
-title OpenCaption - Backend AI Setup
+title CapShorts - Backend AI Setup
 cd /d "%~dp0backend"
 
 echo ========================================================
-echo   OpenCaption - Local AI & Media Engine Setup
+echo   CapShorts - Local AI & Media Engine Setup
 echo ========================================================
 
 python --version >nul 2>&1
@@ -36,6 +36,6 @@ pip install -r requirements.txt
 
 echo.
 echo ========================================================
-echo   OpenCaption Backend Setup Complete!
+echo   CapShorts Backend Setup Complete!
 echo ========================================================
 pause

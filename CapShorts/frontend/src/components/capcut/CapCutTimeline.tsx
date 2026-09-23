@@ -50,21 +50,16 @@ const TimelinePlayhead: React.FC<TimelinePlayheadProps> = React.memo(({
   const playheadX = currentTime * timelineZoom;
   const lastScrollTime = useRef(0);
 
-  // Throttled auto-scroll to keep playhead in view during playback without DOM thrashing
+  // Smooth auto-scroll to keep playhead in view during playback
   useEffect(() => {
     if (isPlaying && scrollContainerRef.current) {
-      const now = Date.now();
-      if (now - lastScrollTime.current > 250) {
-        const container = scrollContainerRef.current;
-        const scrollLeft = container.scrollLeft;
+      const container = scrollContainerRef.current;
+      const scrollLeft = container.scrollLeft;
 
-        if (playheadX > scrollLeft + containerWidth - 100) {
-          container.scrollLeft = playheadX - 120;
-          lastScrollTime.current = now;
-        } else if (playheadX < scrollLeft) {
-          container.scrollLeft = Math.max(0, playheadX - 60);
-          lastScrollTime.current = now;
-        }
+      if (playheadX > scrollLeft + containerWidth - 80) {
+        container.scrollLeft = playheadX - containerWidth * 0.35;
+      } else if (playheadX < scrollLeft) {
+        container.scrollLeft = Math.max(0, playheadX - 60);
       }
     }
   }, [playheadX, isPlaying, containerWidth, scrollContainerRef]);
@@ -102,7 +97,7 @@ const TimelinePlayhead: React.FC<TimelinePlayheadProps> = React.memo(({
 const TimecodeDisplay: React.FC = React.memo(() => {
   const currentTime = useVideoStore((state) => state.currentTime);
   return (
-    <div className="font-mono text-xs font-bold text-cyan-400 bg-[#141416] px-2 py-1 rounded border border-[#27272a]">
+    <div className="font-mono text-xs font-semibold text-zinc-200 bg-white/[0.04] px-2.5 py-1 rounded-lg border border-white/[0.08] shadow-inner tracking-wider">
       {formatTimecode(currentTime)}
     </div>
   );
@@ -143,7 +138,7 @@ const RulerTrack: React.FC<RulerTrackProps> = React.memo(({
 
   return (
     <div
-      className="h-6 border-b border-[#27272a] bg-[#161619] relative cursor-pointer overflow-hidden"
+      className="h-6 border-b border-white/[0.08] bg-zinc-950/60 relative cursor-pointer overflow-hidden backdrop-blur-sm"
       onMouseDown={onMouseDown}
     >
       {ticks.map((t) => (
@@ -152,9 +147,9 @@ const RulerTrack: React.FC<RulerTrackProps> = React.memo(({
           style={{ left: `${t.sec * timelineZoom}px` }}
           className="absolute top-0 bottom-0 flex flex-col justify-end pointer-events-none"
         >
-          <div className={`w-[1px] ${t.isMajor ? 'h-3 bg-zinc-500' : 'h-1.5 bg-zinc-700'}`} />
+          <div className={`w-[1px] ${t.isMajor ? 'h-3 bg-zinc-400' : 'h-1.5 bg-zinc-700'}`} />
           {t.isMajor && (
-            <span className="text-[9px] font-mono text-zinc-400 pl-1 -translate-y-2 select-none">
+            <span className="text-[9px] font-mono text-zinc-400 pl-1 -translate-y-2 select-none font-medium">
               {Math.floor(t.sec)}s
             </span>
           )}
@@ -201,12 +196,12 @@ const SubtitleBlock: React.FC<SubtitleBlockProps> = React.memo(({
         left: `${leftPx}px`,
         width: `${widthPx}px`,
       }}
-      className={`absolute top-2 bottom-2 rounded-md border flex items-center justify-between px-1.5 text-xs font-bold select-none overflow-hidden cursor-pointer ${
+      className={`absolute top-2 bottom-2 rounded-lg border flex items-center justify-between px-2 text-xs font-semibold select-none overflow-hidden cursor-pointer transition-all ${
         isSelected
-          ? 'bg-yellow-500/25 border-yellow-400 ring-2 ring-yellow-400 text-yellow-200 shadow-md shadow-yellow-500/20 z-10'
+          ? 'bg-amber-500/25 border-amber-400 ring-2 ring-amber-400/80 text-amber-200 shadow-lg shadow-amber-500/20 z-10'
           : block.hasKeyword
-          ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 hover:border-amber-400 hover:bg-amber-500/30'
-          : 'bg-[#202024] border-zinc-700 text-zinc-200 hover:border-zinc-500 hover:bg-[#25252a]'
+          ? 'bg-gradient-to-r from-amber-500/20 to-yellow-500/15 border-amber-500/40 text-amber-200 hover:border-amber-400 hover:bg-amber-500/25'
+          : 'bg-zinc-800/80 border-white/[0.08] text-zinc-200 hover:border-white/20 hover:bg-zinc-800 shadow-xs'
       }`}
     >
       {isSelected && (
@@ -294,7 +289,7 @@ const VirtualizedSubtitleTrack: React.FC<VirtualizedSubtitleTrackProps> = React.
   }, [blocks, timelineZoom, visibleStartPx, visibleEndPx]);
 
   return (
-    <div className="h-16 border-b border-[#27272a]/80 relative flex items-center px-1 bg-[#141416]/50 overflow-hidden">
+    <div className="h-16 border-b border-white/[0.06] relative flex items-center px-1 bg-zinc-950/30 overflow-hidden">
       {visibleBlocks.map((block) => {
         const isSelected = (selectedTimelineItemId === block.id || block.words.some(w => w.id === selectedTimelineItemId)) && selectedTimelineItemType === 'subtitle';
         return (
@@ -332,10 +327,10 @@ const VideoTrack: React.FC<VideoTrackProps> = React.memo(({
   isBladeActive,
   onSegmentClick,
 }) => {
-  if (!segments || segments.length === 0) return <div className="h-16 border-b border-[#27272a]/80 bg-[#121214]/60" />;
+  if (!segments || segments.length === 0) return <div className="h-16 border-b border-white/[0.06] bg-zinc-950/50" />;
 
   return (
-    <div className="h-16 border-b border-[#27272a]/80 relative flex items-center bg-[#121214]/60 overflow-hidden">
+    <div className="h-16 border-b border-white/[0.06] relative flex items-center bg-zinc-950/50 overflow-hidden">
       {segments.map((seg) => {
         const isSelected = selectedTimelineItemId === seg.id && selectedTimelineItemType === 'video';
         const leftPx = seg.start * timelineZoom;
@@ -349,26 +344,26 @@ const VideoTrack: React.FC<VideoTrackProps> = React.memo(({
               left: `${leftPx}px`,
               width: `${widthPx}px`,
             }}
-            className={`absolute top-2 bottom-2 rounded-xs border-y border-l overflow-hidden select-none flex items-center justify-between px-1.5 cursor-pointer ${
+            className={`absolute top-2 bottom-2 rounded-lg border-y border-l overflow-hidden select-none flex items-center justify-between px-2 cursor-pointer transition-all ${
               isSelected
-                ? 'bg-cyan-950/80 border-yellow-400 ring-2 ring-yellow-400 shadow-lg shadow-yellow-500/20 z-20 border-r border-r-yellow-400'
+                ? 'bg-indigo-950/70 border-indigo-400 ring-2 ring-indigo-400/80 shadow-lg shadow-indigo-500/20 z-20 border-r border-r-indigo-400'
                 : isBladeActive
-                ? 'bg-slate-900/95 border-cyan-500/50 hover:border-cyan-400 border-r-2 border-r-cyan-400/90'
-                : 'bg-slate-900/85 border-slate-700/80 hover:border-slate-500 border-r-2 border-r-cyan-500/40'
+                ? 'bg-zinc-900/90 border-indigo-500/40 hover:border-indigo-400 border-r-2 border-r-indigo-400/90'
+                : 'bg-zinc-900/85 border-white/[0.08] hover:border-white/20 border-r-2 border-r-indigo-500/40'
             }`}
           >
             {widthPx >= 65 ? (
-              <div className="flex items-center space-x-1.5 text-zinc-300 pointer-events-none truncate min-w-0">
-                <Video className="w-3 h-3 text-cyan-400 flex-shrink-0" />
+              <div className="flex items-center space-x-1.5 text-zinc-200 pointer-events-none truncate min-w-0">
+                <Video className="w-3.5 h-3.5 text-sky-400 flex-shrink-0" />
                 <span className="text-[11px] font-bold truncate">
                   {seg.name}
                 </span>
-                <span className="text-[10px] font-mono text-zinc-400 flex-shrink-0">
+                <span className="text-[10px] font-mono text-zinc-400 flex-shrink-0 bg-black/40 px-1 py-0.2 rounded">
                   {seg.duration.toFixed(1)}s
                 </span>
               </div>
             ) : widthPx >= 22 ? (
-              <div className="flex items-center justify-center w-full pointer-events-none text-cyan-400">
+              <div className="flex items-center justify-center w-full pointer-events-none text-sky-400">
                 <Video className="w-3 h-3" />
               </div>
             ) : null}
@@ -391,13 +386,13 @@ const AudioWaveformCanvas: React.FC<AudioWaveformCanvasProps> = React.memo(({ du
   const width = Math.max(800, Math.round((duration || 10) * timelineZoom));
 
   return (
-    <div className="h-14 relative flex items-center px-1 bg-[#0f0f11] overflow-hidden">
+    <div className="h-14 relative flex items-center px-1 bg-zinc-950/40 overflow-hidden">
       <div
         style={{ width: `${width}px` }}
-        className="h-full relative flex items-center bg-emerald-950/20 border border-emerald-500/20 rounded-md overflow-hidden pointer-events-none"
+        className="h-full relative flex items-center bg-emerald-950/20 border border-emerald-500/20 rounded-lg overflow-hidden pointer-events-none"
       >
         <div
-          className="w-full h-9 opacity-85"
+          className="w-full h-8 opacity-85"
           style={{
             backgroundImage: `repeating-linear-gradient(90deg, #34d399 0px, #34d399 2px, transparent 2px, transparent 6px), radial-gradient(ellipse at center, rgba(52, 211, 153, 0.45) 0%, transparent 80%)`,
             backgroundSize: '6px 75%, 100% 100%',
@@ -520,12 +515,14 @@ export const CapCutTimeline: React.FC = () => {
     });
   }, []);
 
+  const containerLeftRef = useRef(0);
+
   // Scrub time calculation
   const getTimeFromMouseEvent = useCallback((e: React.MouseEvent | MouseEvent) => {
     if (!scrollContainerRef.current) return 0;
-    const rect = scrollContainerRef.current.getBoundingClientRect();
+    const curLeft = containerLeftRef.current || scrollContainerRef.current.getBoundingClientRect().left;
     const curScroll = scrollContainerRef.current.scrollLeft;
-    const clickX = e.clientX - rect.left + curScroll;
+    const clickX = e.clientX - curLeft + curScroll;
     const calculatedTime = Math.max(0, Math.min(effectiveDuration, clickX / timelineZoom));
     return Number(calculatedTime.toFixed(2));
   }, [effectiveDuration, timelineZoom]);
@@ -536,6 +533,9 @@ export const CapCutTimeline: React.FC = () => {
     e.stopPropagation();
     setIsPlaying(false);
     setIsScrubbing(true);
+    if (scrollContainerRef.current) {
+      containerLeftRef.current = scrollContainerRef.current.getBoundingClientRect().left;
+    }
     const newTime = getTimeFromMouseEvent(e);
     setCurrentTime(newTime);
   }, [getTimeFromMouseEvent, setCurrentTime, setIsPlaying, setIsScrubbing]);
@@ -646,92 +646,95 @@ export const CapCutTimeline: React.FC = () => {
     <div
       className={`${
         isMinimized ? 'h-10' : 'h-[270px]'
-      } flex flex-col bg-[#121214] border-t border-[#27272a] select-none text-zinc-200 flex-shrink-0 transition-all duration-200 ease-in-out overflow-hidden`}
+      } flex flex-col bg-[#0b0b0e] border-t border-white/[0.08] select-none text-zinc-200 flex-shrink-0 transition-all duration-200 ease-in-out overflow-hidden shadow-[0_-4px_20px_rgba(0,0,0,0.5)]`}
     >
       {/* Top Timeline Toolbar */}
       <div
         onDoubleClick={() => setIsMinimized(!isMinimized)}
-        className="h-10 border-b border-[#27272a] px-3 flex items-center justify-between bg-[#18181b]"
+        className="h-11 border-b border-white/[0.08] px-3.5 flex items-center justify-between bg-zinc-950/75 backdrop-blur-xl"
         title="Double click to minimize/expand timeline"
       >
         {/* Left Toolbar Tools */}
-        <div className="flex items-center space-x-1.5">
-          {/* Select Tool (V) */}
-          <button
-            onClick={() => setIsBladeActive(false)}
-            className={`p-1.5 rounded-md transition-colors ${
-              !isBladeActive
-                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
-            }`}
-            title="Selection Tool (V)"
-          >
-            <MousePointer className="w-3.5 h-3.5" />
-          </button>
+        <div className="flex items-center space-x-2">
+          {/* Tool Segment (V vs B) */}
+          <div className="flex items-center bg-zinc-900/90 border border-white/[0.06] rounded-xl p-0.5 shadow-inner">
+            {/* Select Tool (V) */}
+            <button
+              onClick={() => setIsBladeActive(false)}
+              className={`p-1.5 rounded-lg transition-all ${
+                !isBladeActive
+                  ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10 font-semibold'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
+              }`}
+              title="Selection Tool (V)"
+            >
+              <MousePointer className="w-3.5 h-3.5" />
+            </button>
 
-          {/* Razor Blade Tool (B) */}
-          <button
-            onClick={() => setIsBladeActive(!isBladeActive)}
-            className={`flex items-center space-x-1 px-2 py-1 rounded-md transition-colors text-xs font-semibold ${
-              isBladeActive
-                ? 'bg-cyan-500 text-black shadow-sm font-bold ring-1 ring-cyan-400'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
-            }`}
-            title="Razor Blade Tool (B) - Click anywhere on timeline to cut"
-          >
-            <Scissors className="w-3.5 h-3.5" />
-            <span>Razor (B)</span>
-          </button>
+            {/* Razor Blade Tool (B) */}
+            <button
+              onClick={() => setIsBladeActive(!isBladeActive)}
+              className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg transition-all text-xs font-semibold ${
+                isBladeActive
+                  ? 'bg-indigo-600 text-white shadow-xs ring-1 ring-white/15 font-bold'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
+              }`}
+              title="Razor Blade Tool (B) - Click anywhere on timeline to cut"
+            >
+              <Scissors className="w-3.5 h-3.5" />
+              <span>Razor (B)</span>
+            </button>
+          </div>
 
-          <div className="h-4 w-[1px] bg-zinc-800 mx-1" />
+          <div className="h-4 w-[1px] bg-white/[0.08]" />
 
-          {/* Instant Split at Playhead Button (Ctrl+B) */}
+          {/* Instant Split at Playhead Button (Ctrl+B / Cmd+B) */}
           <button
             onClick={splitAtPlayhead}
-            className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-zinc-800/90 hover:bg-cyan-500 hover:text-black text-zinc-200 text-xs font-medium border border-zinc-700/60 transition-all group active:scale-95 shadow-xs"
-            title="Split Clip & Caption at Playhead (Ctrl+B)"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-200 text-xs font-medium border border-white/[0.08] transition-all group active:scale-95 shadow-xs"
+            title="Split Clip & Caption at Playhead (Ctrl+B / ⌘B)"
           >
-            <Scissors className="w-3.5 h-3.5 text-cyan-400 group-hover:text-black transition-colors" />
+            <Scissors className="w-3.5 h-3.5 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
             <span className="font-semibold">Split</span>
-            <span className="text-[10px] text-zinc-400 group-hover:text-black/70 font-mono">Ctrl+B</span>
+            <span className="text-[10px] text-zinc-400 font-mono">⌘B</span>
           </button>
 
           {/* Delete Tool (Del) */}
           <button
             onClick={deleteSelectedTimelineItem}
             disabled={!selectedTimelineItemId}
-            className="p-1.5 rounded-md text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-colors disabled:opacity-40 disabled:hover:text-zinc-400"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-white/[0.06] transition-colors disabled:opacity-40 disabled:hover:text-zinc-400"
             title="Delete Selected Clip (Del / Backspace)"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
 
-          <div className="h-4 w-[1px] bg-zinc-800" />
+          <div className="h-4 w-[1px] bg-white/[0.08]" />
 
           {/* Magnet / Snap Toggle (N) */}
           <button
             onClick={() => setIsSnapEnabled(!isSnapEnabled)}
-            className={`p-1.5 rounded-md transition-all ${
+            className={`p-1.5 rounded-lg transition-all ${
               isSnapEnabled
-                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
-                : 'text-zinc-500 hover:text-zinc-300'
+                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.04]'
             }`}
             title="Snapping (N)"
           >
             <Magnet className="w-3.5 h-3.5" />
           </button>
 
-          <div className="h-4 w-[1px] bg-zinc-800" />
+          <div className="h-4 w-[1px] bg-white/[0.08]" />
 
           {/* Smart Silence & Dead-Air Remover Button */}
           {removedSilenceDuration > 0 ? (
-            <div className="flex items-center space-x-1.5 bg-emerald-950/40 border border-emerald-500/40 px-2 py-0.5 rounded-md">
-              <span className="text-[11px] font-bold text-emerald-400">
+            <div className="flex items-center space-x-1.5 bg-emerald-950/40 border border-emerald-500/40 px-2.5 py-1 rounded-lg">
+              <span className="text-[11px] font-bold text-emerald-300">
                 ✂️ Cut {removedSilenceDuration}s Silence
               </span>
               <button
                 onClick={undoSilenceRemoval}
-                className="text-[10px] text-zinc-400 hover:text-white underline"
+                className="text-[10px] text-zinc-400 hover:text-white underline ml-1"
                 title="Undo Silence Jump Cut"
               >
                 Undo
@@ -741,17 +744,17 @@ export const CapCutTimeline: React.FC = () => {
             <button
               onClick={detectAndRemoveSilence}
               disabled={isDetectingSilence || transcript.length === 0}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-md bg-zinc-800/90 hover:bg-zinc-700 text-xs font-semibold text-cyan-300 border border-cyan-500/30 hover:border-cyan-400 transition-all active:scale-95 disabled:opacity-40"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500/15 via-indigo-500/10 to-transparent hover:from-indigo-500/25 border border-indigo-500/30 text-xs font-semibold text-indigo-300 transition-all active:scale-95 disabled:opacity-40"
               title="Automatically detect pauses & silence (>0.5s) and jump-cut dead air for maximum retention"
             >
-              <Zap className={`w-3.5 h-3.5 text-cyan-400 ${isDetectingSilence ? 'animate-spin' : ''}`} />
+              <Zap className={`w-3.5 h-3.5 text-indigo-400 ${isDetectingSilence ? 'animate-spin' : ''}`} />
               <span>{isDetectingSilence ? 'Analyzing Silence...' : 'Remove Dead Air'}</span>
             </button>
           )}
 
-          <div className="h-4 w-[1px] bg-zinc-800" />
+          <div className="h-4 w-[1px] bg-white/[0.08]" />
 
-          {/* Isolated Timecode Reader (Never causes timeline re-renders) */}
+          {/* Isolated Timecode Reader */}
           <TimecodeDisplay />
         </div>
 
@@ -759,7 +762,7 @@ export const CapCutTimeline: React.FC = () => {
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setTimelineZoom(timelineZoom - 10)}
-            className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+            className="p-1.5 rounded-lg hover:bg-white/[0.06] text-zinc-400 hover:text-zinc-200 transition-colors"
             title="Zoom Out"
           >
             <ZoomOut className="w-3.5 h-3.5" />
@@ -772,12 +775,12 @@ export const CapCutTimeline: React.FC = () => {
             step="5"
             value={timelineZoom}
             onChange={(e) => setTimelineZoom(parseInt(e.target.value))}
-            className="w-24 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+            className="w-24 h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-400"
           />
 
           <button
             onClick={() => setTimelineZoom(timelineZoom + 10)}
-            className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+            className="p-1.5 rounded-lg hover:bg-white/[0.06] text-zinc-400 hover:text-zinc-200 transition-colors"
             title="Zoom In"
           >
             <ZoomIn className="w-3.5 h-3.5" />
@@ -785,33 +788,33 @@ export const CapCutTimeline: React.FC = () => {
 
           <button
             onClick={() => setTimelineZoom(60)}
-            className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs font-mono"
+            className="px-2 py-0.5 rounded-md hover:bg-white/[0.08] text-zinc-400 hover:text-white text-xs font-mono border border-white/[0.06] transition-colors"
             title="Reset Zoom"
           >
             1x
           </button>
 
-          <div className="h-4 w-[1px] bg-zinc-800" />
+          <div className="h-4 w-[1px] bg-white/[0.08]" />
 
           {/* Minimize / Expand Timeline Button */}
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className={`flex items-center space-x-1 px-2.5 py-1 rounded-md transition-all ${
+            className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-lg transition-all text-xs font-medium ${
               isMinimized
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
+                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30'
+                : 'text-zinc-400 hover:text-white hover:bg-white/[0.06]'
             }`}
             title={isMinimized ? "Restore / Expand Timeline" : "Minimize Timeline (Maximize video canvas)"}
           >
             {isMinimized ? (
               <>
-                <ChevronUp className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-xs font-bold text-cyan-300">Expand</span>
+                <ChevronUp className="w-3.5 h-3.5 text-indigo-400" />
+                <span className="font-bold text-indigo-300">Expand</span>
               </>
             ) : (
               <>
                 <ChevronDown className="w-3.5 h-3.5" />
-                <span className="text-xs font-medium">Minimize</span>
+                <span>Minimize</span>
               </>
             )}
           </button>
@@ -822,49 +825,50 @@ export const CapCutTimeline: React.FC = () => {
       {!isMinimized && (
         <div className="flex-1 flex overflow-hidden">
           {/* Left Track Headers Column */}
-          <div className="w-28 border-r border-[#27272a] bg-[#141416] flex flex-col flex-shrink-0 z-20">
+          <div className="w-28 border-r border-white/[0.08] bg-[#0d0d10] flex flex-col flex-shrink-0 z-20 select-none">
             {/* Ruler Corner Spacer */}
-            <div className="h-6 border-b border-[#27272a] bg-[#18181b] flex items-center px-2 text-[10px] text-zinc-500 font-mono">
-              Tracks
+            <div className="h-6 border-b border-white/[0.08] bg-zinc-950/60 flex items-center justify-between px-2.5 text-[10px] text-zinc-400 font-mono">
+              <span>TRACKS</span>
+              <span className="text-[9px] text-zinc-600">3</span>
             </div>
 
             {/* Track 1: Subtitle / Captions Track Header */}
-            <div className="h-16 border-b border-[#27272a] px-2.5 flex items-center justify-between text-xs font-semibold">
-              <div className="flex items-center space-x-1.5 text-cyan-400">
+            <div className="h-16 border-b border-white/[0.06] px-2.5 flex items-center justify-between text-xs font-semibold bg-zinc-950/20">
+              <div className="flex items-center space-x-1.5 text-indigo-400">
                 <Type className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-bold text-zinc-300">Captions</span>
+                <span className="text-[11px] font-bold text-zinc-200">Captions</span>
               </div>
               <button
                 onClick={() => setTrack1Locked(!track1Locked)}
-                className="text-zinc-500 hover:text-zinc-300"
+                className="text-zinc-500 hover:text-zinc-300 p-1 rounded hover:bg-white/[0.04] transition-colors"
               >
                 {track1Locked ? <Lock className="w-3 h-3 text-amber-400" /> : <Unlock className="w-3 h-3" />}
               </button>
             </div>
 
             {/* Track 2: Video Track Header */}
-            <div className="h-16 border-b border-[#27272a] px-2.5 flex items-center justify-between text-xs font-semibold">
-              <div className="flex items-center space-x-1.5 text-blue-400">
+            <div className="h-16 border-b border-white/[0.06] px-2.5 flex items-center justify-between text-xs font-semibold bg-zinc-950/30">
+              <div className="flex items-center space-x-1.5 text-sky-400">
                 <Video className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-bold text-zinc-300">Video 1</span>
+                <span className="text-[11px] font-bold text-zinc-200">Video 1</span>
               </div>
               <button
                 onClick={() => setTrack2Locked(!track2Locked)}
-                className="text-zinc-500 hover:text-zinc-300"
+                className="text-zinc-500 hover:text-zinc-300 p-1 rounded hover:bg-white/[0.04] transition-colors"
               >
                 {track2Locked ? <Lock className="w-3 h-3 text-amber-400" /> : <Unlock className="w-3 h-3" />}
               </button>
             </div>
 
             {/* Track 3: Audio Track Header */}
-            <div className="h-14 border-b border-[#27272a] px-2.5 flex items-center justify-between text-xs font-semibold">
+            <div className="h-14 border-b border-white/[0.06] px-2.5 flex items-center justify-between text-xs font-semibold bg-zinc-950/20">
               <div className="flex items-center space-x-1.5 text-emerald-400">
                 <Music className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-bold text-zinc-300">Audio 1</span>
+                <span className="text-[11px] font-bold text-zinc-200">Audio 1</span>
               </div>
               <button
                 onClick={() => setTrack3Locked(!track3Locked)}
-                className="text-zinc-500 hover:text-zinc-300"
+                className="text-zinc-500 hover:text-zinc-300 p-1 rounded hover:bg-white/[0.04] transition-colors"
               >
                 {track3Locked ? <Lock className="w-3 h-3 text-amber-400" /> : <Unlock className="w-3 h-3" />}
               </button>
@@ -891,7 +895,7 @@ export const CapCutTimeline: React.FC = () => {
                 setBladeHoverTime(null);
               }
             }}
-            className={`flex-1 overflow-x-auto overflow-y-hidden relative bg-[#0f0f11] ${
+            className={`flex-1 overflow-x-auto overflow-y-hidden relative bg-[#09090c] ${
               isBladeActive ? 'cursor-crosshair' : 'cursor-default'
             }`}
             onClick={(e) => {

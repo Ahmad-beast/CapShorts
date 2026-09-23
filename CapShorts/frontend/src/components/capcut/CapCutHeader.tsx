@@ -61,27 +61,44 @@ export const CapCutHeader: React.FC = () => {
   };
 
   return (
-    <header className="h-12 bg-[#121214] border-b border-[#27272a] px-3 flex items-center justify-between z-30 select-none text-zinc-100 flex-shrink-0">
-      {/* Left: Brand + Project Title + History */}
+    <header className="h-13 bg-[#0d0d11]/95 backdrop-blur-2xl border-b border-white/[0.08] px-3.5 flex items-center justify-between z-30 select-none text-zinc-100 flex-shrink-0 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]">
+      {/* Left: macOS Traffic Lights + Brand + Project Title + Undo/Redo */}
       <div className="flex items-center space-x-3">
+        {/* macOS Window Controls (Traffic Lights) */}
+        <div className="flex items-center space-x-2 pl-1 pr-2.5 group/traffic" title="macOS Window Controls">
+          <div className="w-3 h-3 rounded-full bg-[#ff5f57] border border-[#e0443e]/40 flex items-center justify-center text-[7px] text-black/60 font-bold opacity-90 group-hover/traffic:opacity-100 transition-opacity cursor-pointer shadow-xs">
+            <span className="opacity-0 group-hover/traffic:opacity-100 transition-opacity leading-none">×</span>
+          </div>
+          <div className="w-3 h-3 rounded-full bg-[#febc2e] border border-[#d89e24]/40 flex items-center justify-center text-[7px] text-black/60 font-bold opacity-90 group-hover/traffic:opacity-100 transition-opacity cursor-pointer shadow-xs">
+            <span className="opacity-0 group-hover/traffic:opacity-100 transition-opacity leading-none">−</span>
+          </div>
+          <div className="w-3 h-3 rounded-full bg-[#28c840] border border-[#1aab29]/40 flex items-center justify-center text-[7px] text-black/60 font-bold opacity-90 group-hover/traffic:opacity-100 transition-opacity cursor-pointer shadow-xs">
+            <span className="opacity-0 group-hover/traffic:opacity-100 transition-opacity leading-none">+</span>
+          </div>
+        </div>
+
+        <div className="h-4 w-[1px] bg-white/[0.08]" />
+
         {/* CapShorts Brand Logo Badge */}
         <div className="flex items-center space-x-2.5">
-          <img
-            src="/logo.png"
-            alt="CapShorts Logo"
-            className="w-7 h-7 rounded-lg object-contain shadow-md shadow-cyan-500/25 ring-1 ring-white/10"
-          />
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 via-sky-500 to-cyan-400 p-[1px] shadow-sm shadow-indigo-500/25 ring-1 ring-white/15 flex items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="CapShorts"
+              className="w-full h-full rounded-[7px] object-contain bg-[#121216]"
+            />
+          </div>
           <div className="flex items-center space-x-1.5">
-            <span className="font-black text-sm tracking-tight text-white">
-              Cap<span className="bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(34,211,238,0.45)]">Shorts</span>
+            <span className="font-bold text-sm tracking-tight text-white font-['Plus_Jakarta_Sans',sans-serif]">
+              Cap<span className="bg-gradient-to-r from-indigo-400 via-sky-400 to-cyan-300 bg-clip-text text-transparent">Shorts</span>
             </span>
-            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-              AI
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 tracking-wider">
+              STUDIO
             </span>
           </div>
         </div>
 
-        <div className="h-4 w-[1px] bg-zinc-800" />
+        <div className="h-4 w-[1px] bg-white/[0.08]" />
 
         {/* Project Title Editor */}
         <div className="flex items-center space-x-1.5">
@@ -96,11 +113,11 @@ export const CapCutHeader: React.FC = () => {
                   if (e.key === 'Escape') setIsEditingTitle(false);
                 }}
                 autoFocus
-                className="bg-zinc-900 border border-cyan-500/80 rounded px-2 py-0.5 text-xs text-white font-medium focus:outline-none w-48"
+                className="bg-zinc-900/90 border border-indigo-500/80 rounded-md px-2.5 py-1 text-xs text-white font-medium focus:outline-none w-48 shadow-inner ring-1 ring-indigo-500/30"
               />
               <button
                 onClick={handleSaveTitle}
-                className="p-1 hover:bg-zinc-800 text-cyan-400 rounded"
+                className="p-1 hover:bg-white/[0.08] text-indigo-400 rounded-md transition-colors"
               >
                 <Check className="w-3.5 h-3.5" />
               </button>
@@ -111,27 +128,25 @@ export const CapCutHeader: React.FC = () => {
                 setTempTitle(projectTitle);
                 setIsEditingTitle(true);
               }}
-              className="flex items-center space-x-1 px-2 py-1 rounded hover:bg-zinc-800/80 text-xs text-zinc-300 font-medium group transition-colors"
+              className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md hover:bg-white/[0.06] text-xs text-zinc-300 font-medium group transition-all border border-transparent hover:border-white/[0.08]"
               title="Click to rename project"
             >
-              <span className="truncate max-w-[180px]">{projectTitle}</span>
-              <Edit3 className="w-3 h-3 text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <span className="truncate max-w-[170px] text-zinc-200">{projectTitle}</span>
+              <Edit3 className="w-3 h-3 text-zinc-500 opacity-40 group-hover:opacity-100 transition-opacity" />
             </button>
           )}
         </div>
 
-        <div className="h-4 w-[1px] bg-zinc-800" />
-
         {/* Undo / Redo controls */}
-        <div className="flex items-center space-x-0.5">
+        <div className="flex items-center space-x-0.5 bg-zinc-900/70 border border-white/[0.06] rounded-lg p-0.5">
           <button
-            className="p-1.5 rounded hover:bg-zinc-800/80 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="p-1 rounded-md hover:bg-white/[0.08] text-zinc-400 hover:text-zinc-200 transition-colors"
             title="Undo (Ctrl+Z)"
           >
             <Undo2 className="w-3.5 h-3.5" />
           </button>
           <button
-            className="p-1.5 rounded hover:bg-zinc-800/80 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="p-1 rounded-md hover:bg-white/[0.08] text-zinc-400 hover:text-zinc-200 transition-colors"
             title="Redo (Ctrl+Y)"
           >
             <Redo2 className="w-3.5 h-3.5" />
@@ -139,82 +154,82 @@ export const CapCutHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* Center: Aspect Ratio Switcher */}
-      <div className="flex items-center bg-[#18181b] border border-[#27272a] rounded-lg p-0.5">
+      {/* Center: macOS Segmented Aspect Ratio Switcher */}
+      <div className="flex items-center bg-zinc-900/90 border border-white/[0.07] rounded-xl p-1 shadow-inner">
         <button
           onClick={() => setAspectRatio('9:16')}
-          className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-semibold transition-all ${
+          className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
             aspectRatio === '9:16'
-              ? 'bg-[#27272a] text-cyan-400 shadow-sm border border-cyan-500/30'
-              : 'text-zinc-400 hover:text-zinc-200'
+              ? 'bg-zinc-800 text-white shadow-sm ring-1 ring-white/10'
+              : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
           }`}
           title="9:16 Vertical (Shorts, Reels, TikTok)"
         >
-          <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
+          <Smartphone className={`w-3.5 h-3.5 ${aspectRatio === '9:16' ? 'text-indigo-400' : 'text-zinc-400'}`} />
           <span>9:16 Shorts</span>
         </button>
         <button
           onClick={() => setAspectRatio('16:9')}
-          className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-semibold transition-all ${
+          className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
             aspectRatio === '16:9'
-              ? 'bg-[#27272a] text-cyan-400 shadow-sm border border-cyan-500/30'
-              : 'text-zinc-400 hover:text-zinc-200'
+              ? 'bg-zinc-800 text-white shadow-sm ring-1 ring-white/10'
+              : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
           }`}
           title="16:9 Landscape (YouTube)"
         >
-          <Monitor className="w-3.5 h-3.5 text-zinc-300" />
+          <Monitor className={`w-3.5 h-3.5 ${aspectRatio === '16:9' ? 'text-indigo-400' : 'text-zinc-400'}`} />
           <span>16:9 Wide</span>
         </button>
         <button
           onClick={() => setAspectRatio('1:1')}
-          className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-semibold transition-all ${
+          className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
             aspectRatio === '1:1'
-              ? 'bg-[#27272a] text-cyan-400 shadow-sm border border-cyan-500/30'
-              : 'text-zinc-400 hover:text-zinc-200'
+              ? 'bg-zinc-800 text-white shadow-sm ring-1 ring-white/10'
+              : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
           }`}
           title="1:1 Square (Instagram Post)"
         >
-          <Square className="w-3.5 h-3.5 text-zinc-300" />
+          <Square className={`w-3.5 h-3.5 ${aspectRatio === '1:1' ? 'text-indigo-400' : 'text-zinc-400'}`} />
           <span>1:1 Square</span>
         </button>
       </div>
 
-      {/* Right: Engine Status & Signature Cyan Export Button */}
+      {/* Right: Engine Status & Apple-Grade Export Button */}
       <div className="flex items-center space-x-2.5">
         {/* Clean System Status Pill */}
-        <div className="hidden sm:flex items-center space-x-2 text-xs bg-[#18181b] border border-[#27272a] px-3 py-1 rounded-full text-zinc-300 shadow-xs">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="font-semibold text-zinc-200">Ready</span>
+        <div className="hidden sm:flex items-center space-x-2 text-xs bg-zinc-900/80 border border-white/[0.06] px-3 py-1 rounded-full text-zinc-300 shadow-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)] animate-pulse"></span>
+          <span className="font-semibold text-zinc-200">Local AI Active</span>
           <span className="text-zinc-600">·</span>
-          <span className="text-[11px] font-medium text-cyan-400">⚡ Hardware Accelerated</span>
+          <span className="text-[11px] font-medium text-indigo-300">GPU Accelerated</span>
         </div>
 
         {/* Replace/New Video */}
         {videoFile && (
           <button
             onClick={handleReset}
-            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 font-medium text-xs border border-zinc-700/60 transition-all active:scale-95"
+            className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 font-medium text-xs border border-white/[0.08] transition-all active:scale-95"
             title="Import different video"
           >
-            <RefreshCw className="w-3 h-3 text-cyan-400" />
-            <span>New Video</span>
+            <RefreshCw className="w-3 h-3 text-indigo-400" />
+            <span>New</span>
           </button>
         )}
 
-        {/* Vibrant Cyan Export Button */}
+        {/* Premium Studio Export Button */}
         <button
           onClick={() => setIsExportModalOpen(true)}
           disabled={isExporting}
-          className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-cyan-400 to-teal-400 hover:from-cyan-300 hover:to-teal-300 text-zinc-950 font-black text-xs shadow-lg shadow-cyan-500/25 transition-all active:scale-95 disabled:opacity-50 tracking-wide"
+          className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500 via-indigo-600 to-sky-500 hover:from-indigo-400 hover:to-sky-400 text-white font-semibold text-xs shadow-lg shadow-indigo-500/25 border border-indigo-400/30 transition-all active:scale-95 disabled:opacity-50 tracking-wide"
         >
-          <Share2 className="w-3.5 h-3.5 text-zinc-950 stroke-[2.5]" />
-          <span>{isExporting ? 'Exporting...' : 'Export'}</span>
+          <Share2 className="w-3.5 h-3.5 text-white stroke-[2.2]" />
+          <span>{isExporting ? 'Exporting...' : 'Export Video'}</span>
         </button>
 
         {/* Settings button */}
         <button
           onClick={() => setIsSettingsModalOpen(true)}
-          className="p-1.5 rounded-lg hover:bg-zinc-800/80 text-zinc-400 hover:text-zinc-200 transition-colors"
+          className="p-2 rounded-lg hover:bg-white/[0.08] text-zinc-400 hover:text-zinc-200 transition-colors border border-transparent hover:border-white/[0.06]"
           title="System & AI Settings"
         >
           <Settings className="w-4 h-4" />

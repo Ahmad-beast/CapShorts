@@ -197,102 +197,102 @@ export const MediaLibraryPanel: React.FC = () => {
   };
 
   return (
-    <div className="w-[380px] lg:w-[420px] h-full flex flex-col bg-[#18181b] border-r border-[#27272a] select-none flex-shrink-0">
-      {/* Top CapCut Icon Tabs Strip */}
-      <div className="h-12 border-b border-[#27272a] px-2 flex items-center justify-between bg-[#121214]">
-        <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar w-full">
+    <div className="w-[380px] lg:w-[420px] h-full flex flex-col bg-[#101014]/95 backdrop-blur-2xl border-r border-white/[0.08] select-none flex-shrink-0">
+      {/* Top macOS Segmented Tab Strip */}
+      <div className="h-13 border-b border-white/[0.08] px-2.5 flex items-center bg-zinc-950/40 backdrop-blur-md">
+        <div className="flex items-center space-x-1 p-1 bg-zinc-900/80 rounded-xl border border-white/[0.06] w-full overflow-x-auto no-scrollbar shadow-inner">
           <button
             onClick={() => setActiveTab('captions')}
-            className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${
+            className={`flex-1 flex items-center justify-center space-x-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               activeTab === 'captions'
-                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
+                ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
             }`}
           >
-            <Subtitles className="w-3.5 h-3.5" />
-            <span>Auto Captions</span>
-            <span className="text-[9px] px-1 py-0.2 rounded bg-cyan-400/20 text-cyan-300 font-mono">AI</span>
+            <Subtitles className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Captions</span>
+            <span className="text-[9px] px-1 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 font-mono">AI</span>
           </button>
 
           <button
             onClick={() => setActiveTab('text')}
-            className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${
+            className={`flex-1 flex items-center justify-center space-x-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               activeTab === 'text'
-                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
+                ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
             }`}
           >
-            <Type className="w-3.5 h-3.5" />
-            <span>Templates</span>
+            <Type className="w-3.5 h-3.5 text-sky-400" />
+            <span>Styles</span>
           </button>
 
           <button
             onClick={() => setActiveTab('shorts')}
-            className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${
+            className={`flex-1 flex items-center justify-center space-x-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               activeTab === 'shorts'
-                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
+                ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
             }`}
           >
-            <Scissors className="w-3.5 h-3.5" />
-            <span>AI Shorts</span>
-            <span className="text-[9px] px-1 py-0.2 rounded bg-zinc-800 text-zinc-400 font-mono">
+            <Scissors className="w-3.5 h-3.5 text-amber-400" />
+            <span>Shorts</span>
+            <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-white/[0.08] text-zinc-300 font-mono">
               {clips.length}
             </span>
           </button>
 
           <button
-            onClick={() => setActiveTab('media')}
-            className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${
-              activeTab === 'media'
-                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
-            }`}
-          >
-            <FolderOpen className="w-3.5 h-3.5" />
-            <span>Media</span>
-          </button>
-
-          <button
             onClick={() => setActiveTab('broll')}
-            className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${
+            className={`flex-1 flex items-center justify-center space-x-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               activeTab === 'broll'
-                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
+                ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
             }`}
           >
-            <Film className="w-3.5 h-3.5" />
+            <Film className="w-3.5 h-3.5 text-emerald-400" />
             <span>B-Roll</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('audio')}
-            className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${
-              activeTab === 'audio'
-                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60'
+            onClick={() => setActiveTab('media')}
+            className={`flex-1 flex items-center justify-center space-x-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+              activeTab === 'media'
+                ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
             }`}
           >
-            <Music className="w-3.5 h-3.5" />
+            <FolderOpen className="w-3.5 h-3.5 text-purple-400" />
+            <span>Media</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('audio')}
+            className={`flex-1 flex items-center justify-center space-x-1 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+              activeTab === 'audio'
+                ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
+            }`}
+          >
+            <Music className="w-3.5 h-3.5 text-pink-400" />
             <span>Audio</span>
           </button>
         </div>
       </div>
 
       {/* Main Tab Content Area */}
-      <div className="flex-1 overflow-y-auto p-3 text-zinc-200 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3.5 text-zinc-200 space-y-4">
         {/* ======================= AUTO CAPTIONS TAB ======================= */}
         {activeTab === 'captions' && (
           <div className="space-y-4 animate-fade">
-            <div className="bg-[#202024] border border-[#27272a] rounded-xl p-3.5 space-y-3">
+            <div className="bg-zinc-900/70 border border-white/[0.08] rounded-2xl p-4 space-y-3.5 shadow-sm ring-1 ring-white/[0.04]">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="w-7 h-7 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400">
-                    <Sparkles className="w-4 h-4" />
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500/20 to-sky-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-sm">
+                    <Sparkles className="w-4 h-4 text-indigo-300" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white tracking-wide">Auto Captions & Subtitles</h4>
-                    <p className="text-[10px] text-zinc-400">Generate viral, word-accurate animated captions in seconds.</p>
+                    <h4 className="text-xs font-bold text-white tracking-tight">Auto Captions & Subtitles</h4>
+                    <p className="text-[10px] text-zinc-400">Generate viral word-accurate captions with AI.</p>
                   </div>
                 </div>
               </div>
@@ -300,13 +300,13 @@ export const MediaLibraryPanel: React.FC = () => {
               {/* Language Selector */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-semibold text-zinc-300 flex items-center justify-between">
-                  <span>Language:</span>
-                  <span className="text-[10px] text-cyan-400">Auto Word Timestamps</span>
+                  <span>Language</span>
+                  <span className="text-[10px] text-indigo-400">Auto Word Timestamps</span>
                 </label>
                 <select
                   value={selectedLanguage}
                   onChange={(e) => setSelectedLanguage(e.target.value)}
-                  className="w-full bg-[#141416] border border-[#27272a] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-zinc-950/80 border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
                 >
                   <option value="auto">Auto Detect</option>
                   <option value="urdu">Urdu (Roman Urdu)</option>
@@ -322,13 +322,13 @@ export const MediaLibraryPanel: React.FC = () => {
 
               {/* Model Choice */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-zinc-300">Speech Engine:</label>
+                <label className="text-[11px] font-semibold text-zinc-300">Speech Engine</label>
                 <select
                   value={selectedModel}
                   onChange={(e) => setSelectedModel(e.target.value)}
-                  className="w-full bg-[#141416] border border-[#27272a] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-zinc-950/80 border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
                 >
-                  <option value="whisper-large-v3-turbo">⚡ Ultra Fast (Cloud AI)</option>
+                  <option value="whisper-large-v3-turbo">⚡ Ultra Fast Groq Turbo (~2-3s)</option>
                   <option value="base">💻 Standard (Offline On-Device)</option>
                   <option value="small">💻 High Accuracy (Offline On-Device)</option>
                 </select>
@@ -338,9 +338,9 @@ export const MediaLibraryPanel: React.FC = () => {
               <button
                 onClick={handleStartTranscribe}
                 disabled={!videoFile || isTranscribing}
-                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-400 hover:from-cyan-300 hover:to-teal-300 text-zinc-950 font-extrabold text-xs shadow-lg shadow-cyan-500/20 flex items-center justify-center space-x-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-sky-500 hover:from-indigo-400 hover:to-sky-400 text-white font-semibold text-xs shadow-lg shadow-indigo-500/25 border border-indigo-400/30 flex items-center justify-center space-x-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed tracking-wide"
               >
-                <Subtitles className="w-4 h-4 stroke-[2.5]" />
+                <Subtitles className="w-4 h-4 stroke-[2.2]" />
                 <span>{isTranscribing ? 'Generating Auto Captions...' : 'Generate Auto Captions'}</span>
               </button>
 
@@ -387,24 +387,24 @@ export const MediaLibraryPanel: React.FC = () => {
             </div>
 
             {/* Quick Transliteration / Script Converter */}
-            <div className="bg-[#202024] border border-[#27272a] rounded-xl p-3 space-y-2.5">
-              <div className="flex items-center space-x-1.5 text-xs font-bold text-zinc-200">
-                <Languages className="w-3.5 h-3.5 text-cyan-400" />
+            <div className="bg-zinc-900/70 border border-white/[0.08] rounded-2xl p-3.5 space-y-2.5 shadow-sm ring-1 ring-white/[0.04]">
+              <div className="flex items-center space-x-2 text-xs font-bold text-zinc-200">
+                <Languages className="w-4 h-4 text-indigo-400" />
                 <span>Quick Script Converter</span>
               </div>
-              <p className="text-[10px] text-zinc-400">
+              <p className="text-[10px] text-zinc-400 leading-relaxed">
                 Instantly convert Devanagari/Hindi transcript text into clean Roman Urdu or Urdu script:
               </p>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => convertTranscriptScript('roman_urdu')}
-                  className="px-2.5 py-1.5 rounded-lg bg-[#141416] hover:bg-zinc-800 border border-[#27272a] text-xs font-semibold text-cyan-300 hover:border-cyan-500/40 transition-colors flex items-center justify-center space-x-1"
+                  className="px-3 py-1.5 rounded-xl bg-zinc-950/80 hover:bg-zinc-800 border border-white/[0.08] text-xs font-semibold text-indigo-300 hover:border-indigo-500/40 transition-all flex items-center justify-center space-x-1"
                 >
                   <span>To Roman Urdu</span>
                 </button>
                 <button
                   onClick={() => convertTranscriptScript('urdu')}
-                  className="px-2.5 py-1.5 rounded-lg bg-[#141416] hover:bg-zinc-800 border border-[#27272a] text-xs font-semibold text-zinc-300 hover:border-zinc-600 transition-colors flex items-center justify-center space-x-1"
+                  className="px-3 py-1.5 rounded-xl bg-zinc-950/80 hover:bg-zinc-800 border border-white/[0.08] text-xs font-semibold text-zinc-300 hover:border-zinc-600 transition-all flex items-center justify-center space-x-1"
                 >
                   <span>To Urdu Script</span>
                 </button>
@@ -412,38 +412,40 @@ export const MediaLibraryPanel: React.FC = () => {
             </div>
 
             {/* Current Transcript Stats */}
-            <div className="bg-[#202024] border border-[#27272a] rounded-xl p-3 flex items-center justify-between text-xs">
+            <div className="bg-zinc-900/70 border border-white/[0.08] rounded-2xl p-3.5 flex items-center justify-between text-xs shadow-sm ring-1 ring-white/[0.04]">
               <span className="text-zinc-400">Total Word Tokens:</span>
-              <span className="font-mono font-bold text-cyan-400">{transcript.length} words</span>
+              <span className="font-mono font-bold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-md">
+                {transcript.length} words
+              </span>
             </div>
           </div>
         )}
 
         {/* ======================= TEXT TEMPLATES TAB ======================= */}
         {activeTab === 'text' && (
-          <div className="space-y-3 animate-fade">
+          <div className="space-y-3.5 animate-fade">
             {/* Search and Category Filter */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search 100+ styles (e.g. MrBeast, Hormozi)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#141416] border border-[#27272a] rounded-lg pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-zinc-950/80 border border-white/[0.08] rounded-xl pl-9 pr-3 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition-colors"
                 />
               </div>
 
-              <div className="flex items-center space-x-1 overflow-x-auto pb-1 no-scrollbar">
+              <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 no-scrollbar">
                 {TEMPLATE_CATEGORIES.map(cat => (
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${
+                    className={`flex-shrink-0 px-3 py-1 rounded-full text-[11px] font-semibold transition-all ${
                       selectedCategory === cat
-                        ? 'bg-cyan-500 text-black shadow-sm font-bold'
-                        : 'bg-[#141416] text-zinc-400 hover:text-zinc-200 border border-[#27272a]'
+                        ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10 font-bold'
+                        : 'bg-zinc-950/70 text-zinc-400 hover:text-zinc-200 border border-white/[0.06] hover:bg-white/[0.04]'
                     }`}
                   >
                     {cat}
@@ -453,17 +455,17 @@ export const MediaLibraryPanel: React.FC = () => {
             </div>
 
             {/* Templates Grid */}
-            <div className="grid grid-cols-2 gap-2 max-h-[calc(100vh-230px)] overflow-y-auto pr-1">
+            <div className="grid grid-cols-2 gap-2.5 max-h-[calc(100vh-230px)] overflow-y-auto pr-1">
               {filteredPresets.map(preset => {
                 const isSelected = preset.id === activeTemplateId;
                 return (
                   <div
                     key={preset.id}
                     onClick={() => setActiveTemplate(preset.id)}
-                    className={`relative p-3 rounded-xl border cursor-pointer transition-all duration-150 flex flex-col justify-between h-24 ${
+                    className={`relative p-3 rounded-2xl border cursor-pointer transition-all duration-150 flex flex-col justify-between h-24 ${
                       isSelected
-                        ? 'bg-cyan-950/40 border-cyan-400 ring-2 ring-cyan-400/50 shadow-lg shadow-cyan-500/10'
-                        : 'bg-[#202024] border-[#27272a] hover:border-zinc-600 hover:bg-[#25252a]'
+                        ? 'bg-indigo-950/30 border-indigo-400/80 ring-2 ring-indigo-500/30 shadow-lg shadow-indigo-500/10'
+                        : 'bg-zinc-900/60 border-white/[0.08] hover:border-white/[0.18] hover:bg-zinc-800/50'
                     }`}
                   >
                     {/* Top title & active check */}
@@ -472,8 +474,8 @@ export const MediaLibraryPanel: React.FC = () => {
                         {preset.name}
                       </span>
                       {isSelected && (
-                        <div className="w-4 h-4 rounded-full bg-cyan-400 flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-black stroke-[3]" />
+                        <div className="w-4 h-4 rounded-full bg-gradient-to-r from-indigo-500 to-sky-400 flex items-center justify-center shadow-xs">
+                          <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
                         </div>
                       )}
                     </div>
@@ -497,7 +499,7 @@ export const MediaLibraryPanel: React.FC = () => {
                     {/* Bottom tags */}
                     <div className="flex items-center justify-between text-[9px] text-zinc-500">
                       <span className="truncate max-w-[80px]">{preset.category}</span>
-                      <span className="capitalize text-cyan-400/80 font-mono">{preset.animationTrigger}</span>
+                      <span className="capitalize text-indigo-400 font-mono font-medium">{preset.animationTrigger}</span>
                     </div>
                   </div>
                 );
@@ -615,13 +617,13 @@ export const MediaLibraryPanel: React.FC = () => {
                     console.warn(e);
                   }
                 }}
-                className="text-[10px] px-2 py-1 rounded bg-[#141416] border border-[#27272a] text-cyan-400 hover:bg-zinc-800"
+                className="text-[10px] px-2.5 py-1 rounded-lg bg-zinc-950/80 border border-white/[0.08] text-indigo-300 hover:bg-zinc-800 transition-colors"
               >
                 Re-detect
               </button>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {clips.map(clip => {
                 const isSelected = selectedClipId === clip.id;
                 return (
@@ -631,20 +633,20 @@ export const MediaLibraryPanel: React.FC = () => {
                       selectClip(clip.id);
                       setCurrentTime(clip.start);
                     }}
-                    className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-150 ${
                       isSelected
-                        ? 'bg-cyan-950/30 border-cyan-400 ring-1 ring-cyan-400'
-                        : 'bg-[#202024] border-[#27272a] hover:border-zinc-600'
+                        ? 'bg-indigo-950/30 border-indigo-400/80 ring-2 ring-indigo-500/30 shadow-lg shadow-indigo-500/10'
+                        : 'bg-zinc-900/60 border-white/[0.08] hover:border-white/[0.18] hover:bg-zinc-800/40'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1.5">
                       <span className="text-xs font-bold text-white truncate max-w-[200px]">{clip.title}</span>
-                      <div className="flex items-center space-x-1 text-[10px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/30">
-                        <Flame className="w-3 h-3 fill-current" />
+                      <div className="flex items-center space-x-1 text-[10px] font-bold text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded-full border border-amber-500/30 shadow-xs">
+                        <Flame className="w-3 h-3 fill-amber-400 text-amber-400" />
                         <span>{clip.virality_score}%</span>
                       </div>
                     </div>
-                    <p className="text-[11px] text-zinc-300 line-clamp-2 italic mb-2">"{clip.hook}"</p>
+                    <p className="text-[11px] text-zinc-300 line-clamp-2 italic mb-2.5">"{clip.hook}"</p>
                     <div className="flex items-center justify-between text-[10px] text-zinc-400">
                       <span className="font-mono">{formatTime(clip.start)} - {formatTime(clip.end)} ({clip.duration}s)</span>
                       <button
@@ -653,7 +655,7 @@ export const MediaLibraryPanel: React.FC = () => {
                           selectClip(clip.id);
                           setIsExportModalOpen(true);
                         }}
-                        className="px-2 py-0.5 rounded bg-cyan-400/20 text-cyan-300 hover:bg-cyan-400/30 border border-cyan-500/30 font-semibold"
+                        className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-indigo-500 to-sky-500 hover:from-indigo-400 hover:to-sky-400 text-white font-semibold text-[10px] shadow-sm transition-all active:scale-95"
                       >
                         Export Short
                       </button>

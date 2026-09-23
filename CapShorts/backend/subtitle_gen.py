@@ -1,5 +1,5 @@
 """
-subtitle_gen.py - Advanced SubStation Alpha (.ass) Generator for OpenCaption
+subtitle_gen.py - Advanced SubStation Alpha (.ass), SRT, and VTT Generator for CapShorts
 Supports 100+ dynamic styles, karaoke tags, animations, outlines, shadows, and word highlighting.
 Dynamically scales font size, margins, and positioning across 9:16 Shorts, 16:9 Landscape, and 1:1 Square.
 """
@@ -133,7 +133,7 @@ def generate_ass_subtitles(
     back_colour = hex_to_ass_color(style.get("bgBoxColor", "#000000"), alpha=120) if border_style == 3 else shadow_color_ass
 
     header = f"""[Script Info]
-Title: OpenCaption Export
+Title: CapShorts Export
 ScriptType: v4.00+
 WrapStyle: 0
 ScaledBorderAndShadow: yes
@@ -256,3 +256,112 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         i += max_words_per_block
 
     return header + "\n".join(events) + "\n"
+
+
+def format_srt_time(seconds: float) -> str:
+    """Converts seconds into SRT timestamp format HH:MM:SS,mmm"""
+    if seconds < 0:
+        seconds = 0.0
+    hrs = int(seconds // 3600)
+    mins = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    millis = int(round((seconds - int(seconds)) * 1000))
+    if millis >= 1000:
+        millis = 999
+    return f"{hrs:02d}:{mins:02d}:{secs:02d},{millis:03d}"
+
+
+def format_vtt_time(seconds: float) -> str:
+    """Converts seconds into WebVTT timestamp format HH:MM:SS.mmm"""
+    if seconds < 0:
+        seconds = 0.0
+    hrs = int(seconds // 3600)
+    mins = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    millis = int(round((seconds - int(seconds)) * 1000))
+    if millis >= 1000:
+        millis = 999
+    return f"{hrs:02d}:{mins:02d}:{secs:02d}.{millis:03d}"
+
+
+def _chunk_transcript_into_sentences(
+    transcript: List[Dict[str, Any]],
+    max_words_per_block: int = 6,
+    max_chars_per_block: int = 36
+) -> List[Dict[str, Any]]:
+    """Groups word-level tokens into readable subtitle lines based on natural pauses and lengths."""
+    if not transcript:
+        return []
+
+    sorted_words = sorted(transcript, key=lambda x: x.get("start", 0.0))
+    blocks = []
+    current_block: List[Dict[str, Any]] = []
+
+    for word_obj in sorted_words:
+        word_text = str(word_obj.get("word", "")).strip()
+        if not word_text:
+            continue
+
+        current_block.append(word_obj)
+        current_len = sum(len(str(w.get("word", ""))) for w in current_block) + len(current_block) - 1
+
+        # Check pause gap to next or natural sentence ending
+        is_sentence_end = word_text.endswith((".", "!", "?"))
+        pause_gap = False
+        if len(current_block) > 1:
+            prev_end = current_block[-2].get("end", 0.0)
+            curr_start = word_obj.get("start", 0.0)
+            if curr_start - prev_end > 0.8:
+                pause_gap = True
+
+        if len(current_block) >= max_words_per_block or current_len >= max_chars_per_block or is_sentence_end or pause_gap:
+            block_start = current_block[0].get("start", 0.0)
+            block_end = max(current_block[-1].get("end", block_start + 1.0), block_start + 0.4)
+            line_text = " ".join(str(w.get("word", "")).strip() for w in current_block)
+            blocks.append({
+                "start": block_start,
+                "end": block_end,
+                "text": line_text
+            })
+            current_block = []
+
+    if current_block:
+        block_start = current_block[0].get("start", 0.0)
+        block_end = max(current_block[-1].get("end", block_start + 1.0), block_start + 0.4)
+        line_text = " ".join(str(w.get("word", "")).strip() for w in current_block)
+        blocks.append({
+            "start": block_start,
+            "end": block_end,
+            "text": line_text
+        })
+
+    return blocks
+
+
+def generate_srt_subtitles(
+    transcript: List[Dict[str, Any]],
+    max_words_per_line: int = 6
+) -> str:
+    """Generates standard SubRip (.srt) subtitle text."""
+    blocks = _chunk_transcript_into_sentences(transcript, max_words_per_block=max_words_per_line)
+    lines = []
+    for idx, block in enumerate(blocks, start=1):
+        start_str = format_srt_time(block["start"])
+        end_str = format_srt_time(block["end"])
+        lines.append(f"{idx}\n{start_str} --> {end_str}\n{block['text']}\n")
+    return "\n".join(lines).strip() + "\n"
+
+
+def generate_vtt_subtitles(
+    transcript: List[Dict[str, Any]],
+    max_words_per_line: int = 6
+) -> str:
+    """Generates standard WebVTT (.vtt) subtitle text."""
+    blocks = _chunk_transcript_into_sentences(transcript, max_words_per_block=max_words_per_line)
+    lines = ["WEBVTT\n"]
+    for idx, block in enumerate(blocks, start=1):
+        start_str = format_vtt_time(block["start"])
+        end_str = format_vtt_time(block["end"])
+        lines.append(f"{idx}\n{start_str} --> {end_str}\n{block['text']}\n")
+    return "\n".join(lines).strip() + "\n"
+
