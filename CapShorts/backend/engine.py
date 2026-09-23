@@ -36,6 +36,7 @@ from broll import search_pexels_videos, download_broll_clip, build_ffmpeg_broll_
 from clip_generator import detect_viral_clips
 from groq_transcribe import transcribe_with_groq_pool
 from transliterate import transliterate_transcript, transliterate_word
+from telemetry import telemetry
 
 app = FastAPI(title="CapShorts AI Engine", version="1.4.0")
 
@@ -538,6 +539,10 @@ def run_transcribe_job(
                 "duration": video_duration,
                 "video_path": target_video
             }
+            try:
+                telemetry.record_transcribe()
+            except Exception:
+                pass
 
         except Exception as e:
             print(f"[engine] Transcribe job error: {e}")
@@ -845,6 +850,10 @@ def run_export_job(task_id: str, payload: ExportPayload):
             "output_path": output_file,
             "download_url": f"/api/download/{os.path.basename(output_file)}"
         }
+        try:
+            telemetry.record_export()
+        except Exception:
+            pass
 
     except Exception as e:
         EXPORT_TASKS[task_id] = {
@@ -1151,9 +1160,130 @@ def download_subtitles_file(filename: str):
     media_type = "application/x-subrip" if filename.endswith(".srt") else "text/vtt" if filename.endswith(".vtt") else "text/plain"
     return FileResponse(path, media_type=media_type, filename=filename)
 
+@app.get("/api/system/update-status")
+def get_update_status():
+    """Checks whether a new update is available from GitHub (supports macOS, Windows, and MSI)."""
+    import platform
+    current_os = platform.system().lower()
+    
+    # Locate project root containing .git or workspace
+    project_root = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
+    if not os.path.exists(os.path.join(project_root, ".git")):
+        project_root = os.path.abspath(os.path.join(BASE_DIR, ".."))
+    
+    git_dir = os.path.join(project_root, ".git")
+    is_git_repo = os.path.exists(git_dir)
+    
+    current_version = "1.1.0"
+    current_commit = "unknown"
+    latest_commit = "unknown"
+    update_available = False
+    details = ""
+    
+    if is_git_repo:
+        try:
+            current_commit = subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=project_root,
+                text=True,
+                timeout=5,
+                **SUBPROCESS_EXTRA_KWARGS
+            ).strip()
+            
+            out = subprocess.check_output(
+                ["git", "ls-remote", "origin", "refs/heads/main"],
+                cwd=project_root,
+                text=True,
+                timeout=8,
+                **SUBPROCESS_EXTRA_KWARGS
+            ).strip()
+            
+            if out:
+                latest_commit = out.split()[0][:7]
+                update_available = (latest_commit != current_commit)
+                if update_available:
+                    details = f"New version ({latest_commit}) is ready to install!"
+                else:
+                    details = "CapShorts is up to date."
+        except Exception as e:
+            details = f"Update check note: {e}"
+    else:
+        details = "Packaged MSI/DMG release mode."
+        
+    return {
+        "current_version": current_version,
+        "current_commit": current_commit,
+        "latest_commit": latest_commit,
+        "update_available": update_available,
+        "is_git_repo": is_git_repo,
+        "platform": current_os,
+        "details": details,
+        "msi_download_url": "https://github.com/thealiraza2/CapShorts/releases/latest",
+        "dmg_download_url": "https://github.com/thealiraza2/CapShorts/releases/latest",
+        "release_url": "https://github.com/thealiraza2/CapShorts/releases/latest"
+    }
+
+@app.post("/api/system/apply-update")
+def apply_update():
+    """Pulls latest updates from GitHub or returns direct package upgrade links."""
+    try:
+        project_root = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))
+        if not os.path.exists(os.path.join(project_root, ".git")):
+            project_root = os.path.abspath(os.path.join(BASE_DIR, ".."))
+        
+        git_dir = os.path.join(project_root, ".git")
+        if os.path.exists(git_dir):
+            cmd = ["git", "pull", "origin", "main"]
+            proc = subprocess.run(
+                cmd,
+                cwd=project_root,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=60,
+                **SUBPROCESS_EXTRA_KWARGS
+            )
+            if proc.returncode != 0:
+                return {
+                    "success": False,
+                    "error": proc.stderr or proc.stdout,
+                    "message": "Git pull was interrupted. Please ensure your local files are saved."
+                }
+            
+            return {
+                "success": True,
+                "message": "CapShorts updated successfully! Reloading studio...",
+                "git_output": proc.stdout.strip(),
+                "action_required": "reload"
+            }
+        else:
+            return {
+                "success": True,
+                "is_packaged": True,
+                "message": "Opening latest MSI / DMG installer release page...",
+                "download_url": "https://github.com/thealiraza2/CapShorts/releases/latest",
+                "action_required": "download"
+            }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/system/telemetry-stats")
+def get_telemetry_stats():
+    """Returns local anonymous session stats."""
+    return {
+        "machine_id": telemetry.machine_id,
+        "os": telemetry.os_info,
+        "session_seconds": telemetry.get_session_seconds(),
+        "videos_transcribed": telemetry.videos_transcribed,
+        "videos_exported": telemetry.videos_exported,
+        "telemetry_url": telemetry.get_telemetry_url()
+    }
+
 if __name__ == "__main__":
     import uvicorn
     threading.Thread(target=get_whisper_model, daemon=True).start()
+    threading.Thread(target=telemetry.start_heartbeat_loop, daemon=True).start()
     uvicorn.run(app, host="127.0.0.1", port=8000, reload=False, log_config=None)
+
 
 

@@ -7,7 +7,12 @@ import {
   Zap,
   CheckCircle2,
   ExternalLink,
-  Film
+  Film,
+  RefreshCw,
+  ArrowUpCircle,
+  Download,
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
 import { useVideoStore } from '../store/useVideoStore';
 
@@ -22,10 +27,66 @@ export const SettingsModal: React.FC = () => {
     engineHealth
   } = useVideoStore();
 
-  const [activeSettingsTab, setActiveSettingsTab] = useState<'ai' | 'hardware' | 'broll'>('ai');
+  const [activeSettingsTab, setActiveSettingsTab] = useState<'ai' | 'hardware' | 'broll' | 'updates'>('ai');
   const [tempGroqKey, setTempGroqKey] = useState(groqApiKey);
   const [pexelsKey, setPexelsKey] = useState(() => localStorage.getItem('capshorts_pexels_key') || localStorage.getItem('opencaption_pexels_key') || '');
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  // Auto-Update State
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
+  const [updateInfo, setUpdateInfo] = useState<{
+    current_version: string;
+    current_commit: string;
+    latest_commit: string;
+    update_available: boolean;
+    is_git_repo: boolean;
+    platform: string;
+    details: string;
+    msi_download_url?: string;
+    dmg_download_url?: string;
+    release_url?: string;
+  } | null>(null);
+  const [updateStatusMessage, setUpdateStatusMessage] = useState<string | null>(null);
+
+  const fetchUpdateStatus = async () => {
+    setIsCheckingUpdate(true);
+    setUpdateStatusMessage(null);
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/system/update-status');
+      if (res.ok) {
+        const data = await res.json();
+        setUpdateInfo(data);
+      } else {
+        setUpdateStatusMessage('Failed to check for updates. Engine may be offline.');
+      }
+    } catch (err: any) {
+      setUpdateStatusMessage('Could not reach backend update service.');
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
+
+  const handleApplyUpdate = async () => {
+    setIsApplyingUpdate(true);
+    setUpdateStatusMessage('Pulling latest code from GitHub...');
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/system/apply-update', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setUpdateStatusMessage(data.message || 'Update applied successfully! Reloading studio in 3 seconds...');
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      } else {
+        setUpdateStatusMessage(`Update notice: ${data.message || data.error}`);
+        setIsApplyingUpdate(false);
+      }
+    } catch (err: any) {
+      setUpdateStatusMessage(`Update failed: ${err.message}`);
+      setIsApplyingUpdate(false);
+    }
+  };
 
   if (!isSettingsModalOpen) return null;
 
@@ -81,7 +142,7 @@ export const SettingsModal: React.FC = () => {
 
         {/* macOS Segmented Tab Navigation */}
         <div className="px-6 pt-3 pb-1 bg-zinc-950/30 border-b border-white/[0.06]">
-          <div className="grid grid-cols-3 gap-1 bg-zinc-900/80 p-1 rounded-xl border border-white/[0.06]">
+          <div className="grid grid-cols-4 gap-1 bg-zinc-900/80 p-1 rounded-xl border border-white/[0.06]">
             <button
               onClick={() => setActiveSettingsTab('ai')}
               className={`py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
@@ -91,7 +152,7 @@ export const SettingsModal: React.FC = () => {
               }`}
             >
               <Zap className="w-3.5 h-3.5 text-indigo-400" />
-              <span>AI Speech Models</span>
+              <span>AI Models</span>
             </button>
             <button
               onClick={() => setActiveSettingsTab('hardware')}
@@ -102,7 +163,7 @@ export const SettingsModal: React.FC = () => {
               }`}
             >
               <Cpu className="w-3.5 h-3.5 text-sky-400" />
-              <span>Hardware & Engine</span>
+              <span>Hardware</span>
             </button>
             <button
               onClick={() => setActiveSettingsTab('broll')}
@@ -113,7 +174,21 @@ export const SettingsModal: React.FC = () => {
               }`}
             >
               <Film className="w-3.5 h-3.5 text-amber-400" />
-              <span>B-Roll Media</span>
+              <span>B-Roll</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveSettingsTab('updates');
+                fetchUpdateStatus();
+              }}
+              className={`py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
+                activeSettingsTab === 'updates'
+                  ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10 font-bold'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
+              }`}
+            >
+              <ArrowUpCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Updates</span>
             </button>
           </div>
         </div>
@@ -297,6 +372,131 @@ export const SettingsModal: React.FC = () => {
                   </button>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeSettingsTab === 'updates' && (
+            <div className="space-y-4">
+              {/* Status Card */}
+              <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-5 space-y-4 shadow-sm backdrop-blur-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
+                      updateInfo?.update_available
+                        ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-400'
+                        : 'bg-indigo-500/15 border border-indigo-500/30 text-indigo-400'
+                    }`}>
+                      {updateInfo?.update_available ? (
+                        <ArrowUpCircle className="w-5 h-5 animate-bounce" />
+                      ) : (
+                        <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">
+                        {updateInfo?.update_available
+                          ? 'New Update Available!'
+                          : 'CapShorts is Up to Date'}
+                      </h4>
+                      <p className="text-[11px] text-zinc-400">
+                        {updateInfo?.details || 'Check GitHub for new features and performance updates.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={fetchUpdateStatus}
+                    disabled={isCheckingUpdate || isApplyingUpdate}
+                    className="px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white transition-all disabled:opacity-50 flex items-center space-x-1.5 font-medium text-[11px]"
+                    title="Check GitHub for updates"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isCheckingUpdate ? 'animate-spin text-indigo-400' : ''}`} />
+                    <span>Check Now</span>
+                  </button>
+                </div>
+
+                {/* System Specs & Version Badges */}
+                <div className="grid grid-cols-3 gap-2 py-1">
+                  <div className="bg-black/40 border border-white/[0.06] rounded-xl p-2.5">
+                    <span className="text-[10px] text-zinc-500 uppercase tracking-wider block font-semibold">Studio Version</span>
+                    <span className="text-xs font-bold text-white mt-0.5 block">
+                      v{updateInfo?.current_version || '1.1.0'}
+                    </span>
+                  </div>
+                  <div className="bg-black/40 border border-white/[0.06] rounded-xl p-2.5">
+                    <span className="text-[10px] text-zinc-500 uppercase tracking-wider block font-semibold">Commit Hash</span>
+                    <span className="text-xs font-mono font-bold text-zinc-300 mt-0.5 block truncate">
+                      #{updateInfo?.current_commit || 'f5aad21'}
+                    </span>
+                  </div>
+                  <div className="bg-black/40 border border-white/[0.06] rounded-xl p-2.5">
+                    <span className="text-[10px] text-zinc-500 uppercase tracking-wider block font-semibold">Platform</span>
+                    <span className="text-xs font-bold text-sky-400 mt-0.5 block capitalize">
+                      {updateInfo?.platform === 'darwin' ? 'macOS (Universal)' : updateInfo?.platform === 'windows' ? 'Windows (x64)' : 'Cross-Platform'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Area */}
+                {updateInfo?.update_available ? (
+                  <div className="pt-2 border-t border-white/[0.06] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-xs font-semibold text-white">Latest Commit / Build:</span>
+                        <span className="ml-2 font-mono text-emerald-400 text-xs font-bold">#{updateInfo.latest_commit}</span>
+                      </div>
+                      {updateInfo.is_git_repo ? (
+                        <button
+                          onClick={handleApplyUpdate}
+                          disabled={isApplyingUpdate}
+                          className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-bold rounded-xl transition-all active:scale-95 shadow-lg shadow-emerald-500/20 flex items-center space-x-2 disabled:opacity-50"
+                        >
+                          <Download className={`w-3.5 h-3.5 ${isApplyingUpdate ? 'animate-bounce' : ''}`} />
+                          <span>{isApplyingUpdate ? 'Updating CapShorts...' : '1-Click Update Now'}</span>
+                        </button>
+                      ) : (
+                        <a
+                          href={updateInfo.platform === 'windows' ? updateInfo.msi_download_url : updateInfo.dmg_download_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-sky-500 hover:from-indigo-400 hover:to-sky-400 text-white font-bold rounded-xl transition-all active:scale-95 shadow-lg shadow-indigo-500/20 flex items-center space-x-2"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Download Latest Package</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-zinc-400">
+                    <span className="flex items-center space-x-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>Zero manual re-downloads required — updates apply in 2 seconds.</span>
+                    </span>
+                    <a
+                      href={updateInfo?.release_url || 'https://github.com/thealiraza2/CapShorts/releases/latest'}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-zinc-400 hover:text-white flex items-center space-x-1 hover:underline font-medium"
+                    >
+                      <span>Releases</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Status Message Alert */}
+              {updateStatusMessage && (
+                <div className={`border rounded-2xl px-4 py-3 flex items-center space-x-2 text-xs animate-in fade-in ${
+                  updateStatusMessage.includes('successfully') || updateStatusMessage.includes('Reloading')
+                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                    : 'bg-indigo-500/15 border-indigo-500/30 text-indigo-200'
+                }`}>
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span className="font-medium">{updateStatusMessage}</span>
+                </div>
+              )}
             </div>
           )}
         </div>
