@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Film,
   Smartphone,
@@ -44,8 +44,18 @@ export const CapCutHeader: React.FC = () => {
     }))
   );
 
+  const [hasUpdate, setHasUpdate] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [tempTitle, setTempTitle] = useState(projectTitle);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/api/system/update-status')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.update_available) setHasUpdate(true);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSaveTitle = () => {
     if (tempTitle.trim()) {
@@ -226,13 +236,16 @@ export const CapCutHeader: React.FC = () => {
           <span>{isExporting ? 'Exporting...' : 'Export Video'}</span>
         </button>
 
-        {/* Settings button */}
+        {/* Settings button with update notification badge */}
         <button
           onClick={() => setIsSettingsModalOpen(true)}
-          className="p-2 rounded-lg hover:bg-white/[0.08] text-zinc-400 hover:text-zinc-200 transition-colors border border-transparent hover:border-white/[0.06]"
-          title="System & AI Settings"
+          className="relative p-2 rounded-lg hover:bg-white/[0.08] text-zinc-400 hover:text-zinc-200 transition-colors border border-transparent hover:border-white/[0.06]"
+          title={hasUpdate ? "New Update Available! Open Settings" : "System & AI Settings"}
         >
           <Settings className="w-4 h-4" />
+          {hasUpdate && (
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-zinc-950 animate-pulse" />
+          )}
         </button>
       </div>
     </header>

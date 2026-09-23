@@ -13,6 +13,8 @@
 *.pfx
 secrets/
 credentials.json
+cloudflare-telemetry/
+telemetry-worker/
 
 # 2. Dependencies & Package Managers
 node_modules/
