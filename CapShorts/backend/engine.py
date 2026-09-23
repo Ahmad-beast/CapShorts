@@ -1271,12 +1271,33 @@ def apply_update():
 def get_telemetry_stats():
     """Returns local anonymous session stats."""
     return {
+        "enabled": telemetry.is_enabled(),
         "machine_id": telemetry.machine_id,
         "os": telemetry.os_info,
         "session_seconds": telemetry.get_session_seconds(),
         "videos_transcribed": telemetry.videos_transcribed,
         "videos_exported": telemetry.videos_exported,
         "telemetry_url": telemetry.get_telemetry_url()
+    }
+
+@app.get("/api/system/telemetry-settings")
+def get_telemetry_settings():
+    """Returns telemetry opt-in status."""
+    return {
+        "enabled": telemetry.is_enabled(),
+        "machine_id": telemetry.machine_id,
+        "os": telemetry.os_info,
+        "app_version": telemetry.app_version
+    }
+
+@app.post("/api/system/telemetry-settings")
+def update_telemetry_settings(payload: Dict[str, Any]):
+    """Allows user to toggle anonymous telemetry on or off."""
+    enabled = bool(payload.get("enabled", True))
+    telemetry.set_enabled(enabled)
+    return {
+        "success": True,
+        "enabled": telemetry.is_enabled()
     }
 
 if __name__ == "__main__":
