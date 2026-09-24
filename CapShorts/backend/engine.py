@@ -607,6 +607,20 @@ async def start_transcription(
     )
     return {"status": "started", "task_id": task_id, "video_path": target_video}
 
+@app.post("/api/upload-video")
+async def upload_video_file(file: UploadFile = File(...)):
+    """Receives and caches video file on server for editing and export."""
+    task_id = str(uuid.uuid4())[:8]
+    file_ext = os.path.splitext(file.filename or ".mp4")[1]
+    target_video = os.path.join(TEMP_DIR, f"input_{task_id}{file_ext}")
+    with open(target_video, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+    return {
+        "status": "success",
+        "video_path": target_video,
+        "filename": file.filename
+    }
+
 @app.get("/api/transcribe/progress/{task_id}")
 def get_transcribe_progress(task_id: str):
     """Returns live percentage progress, status step, and result when completed."""
@@ -1271,12 +1285,33 @@ def apply_update():
 def get_telemetry_stats():
     """Returns local anonymous session stats."""
     return {
+        "enabled": telemetry.is_enabled(),
         "machine_id": telemetry.machine_id,
         "os": telemetry.os_info,
         "session_seconds": telemetry.get_session_seconds(),
         "videos_transcribed": telemetry.videos_transcribed,
         "videos_exported": telemetry.videos_exported,
         "telemetry_url": telemetry.get_telemetry_url()
+    }
+
+@app.get("/api/system/telemetry-settings")
+def get_telemetry_settings():
+    """Returns telemetry opt-in status."""
+    return {
+        "enabled": telemetry.is_enabled(),
+        "machine_id": telemetry.machine_id,
+        "os": telemetry.os_info,
+        "app_version": telemetry.app_version
+    }
+
+@app.post("/api/system/telemetry-settings")
+def update_telemetry_settings(payload: Dict[str, Any]):
+    """Allows user to toggle anonymous telemetry on or off."""
+    enabled = bool(payload.get("enabled", True))
+    telemetry.set_enabled(enabled)
+    return {
+        "success": True,
+        "enabled": telemetry.is_enabled()
     }
 
 if __name__ == "__main__":
