@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Settings,
@@ -66,6 +66,12 @@ export const SettingsModal: React.FC = () => {
       setIsCheckingUpdate(false);
     }
   };
+
+  useEffect(() => {
+    if (isSettingsModalOpen) {
+      fetchUpdateStatus();
+    }
+  }, [isSettingsModalOpen]);
 
   const handleApplyUpdate = async () => {
     setIsApplyingUpdate(true);

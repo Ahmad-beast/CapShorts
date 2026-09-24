@@ -1160,6 +1160,55 @@ def download_subtitles_file(filename: str):
     media_type = "application/x-subrip" if filename.endswith(".srt") else "text/vtt" if filename.endswith(".vtt") else "text/plain"
     return FileResponse(path, media_type=media_type, filename=filename)
 
+OFFICIAL_REPO_URL = "https://github.com/thealiraza2/CapShorts.git"
+
+def get_update_remote_target(project_root: str) -> str:
+    """Returns the remote name ('upstream', 'origin', or official git URL) to query."""
+    try:
+        remotes = subprocess.check_output(
+            ["git", "remote"],
+            cwd=project_root,
+            text=True,
+            timeout=5,
+            **SUBPROCESS_EXTRA_KWARGS
+        ).split()
+        
+        # 1. If upstream remote exists, use it
+        if "upstream" in remotes:
+            return "upstream"
+            
+        # 2. If origin exists, check if it points to the official repo
+        if "origin" in remotes:
+            try:
+                origin_url = subprocess.check_output(
+                    ["git", "remote", "get-url", "origin"],
+                    cwd=project_root,
+                    text=True,
+                    timeout=5,
+                    **SUBPROCESS_EXTRA_KWARGS
+                ).strip()
+                if "thealiraza2/CapShorts" in origin_url:
+                    return "origin"
+            except Exception:
+                pass
+            
+            # Origin is a fork. Automatically add upstream remote pointing to the official repo
+            try:
+                subprocess.run(
+                    ["git", "remote", "add", "upstream", OFFICIAL_REPO_URL],
+                    cwd=project_root,
+                    timeout=5,
+                    **SUBPROCESS_EXTRA_KWARGS
+                )
+                return "upstream"
+            except Exception:
+                pass
+                
+        # Fallback to direct official repo URL
+        return OFFICIAL_REPO_URL
+    except Exception:
+        return OFFICIAL_REPO_URL
+
 @app.get("/api/system/update-status")
 def get_update_status():
     """Checks whether a new update is available from GitHub (supports macOS, Windows, and MSI)."""
@@ -1190,8 +1239,10 @@ def get_update_status():
                 **SUBPROCESS_EXTRA_KWARGS
             ).strip()
             
+            remote_target = get_update_remote_target(project_root)
+            
             out = subprocess.check_output(
-                ["git", "ls-remote", "origin", "refs/heads/main"],
+                ["git", "ls-remote", remote_target, "refs/heads/main"],
                 cwd=project_root,
                 text=True,
                 timeout=8,
@@ -1233,7 +1284,8 @@ def apply_update():
         
         git_dir = os.path.join(project_root, ".git")
         if os.path.exists(git_dir):
-            cmd = ["git", "pull", "origin", "main"]
+            remote_target = get_update_remote_target(project_root)
+            cmd = ["git", "pull", "--no-rebase", "--autostash", remote_target, "main"]
             proc = subprocess.run(
                 cmd,
                 cwd=project_root,
@@ -1244,28 +1296,56 @@ def apply_update():
                 **SUBPROCESS_EXTRA_KWARGS
             )
             if proc.returncode != 0:
-                return {
-                    "success": False,
-                    "error": proc.stderr or proc.stdout,
-                    "message": "Git pull was interrupted. Please ensure your local files are saved."
-                }
+                # Fallback to fetch and merge
+                subprocess.run(
+                    ["git", "fetch", remote_target, "main"],
+                    cwd=project_root,
+                    timeout=30,
+                    **SUBPROCESS_EXTRA_KWARGS
+                )
+                merge_proc = subprocess.run(
+                    ["git", "merge", f"{remote_target}/main", "-m", "chore: sync upstream update"],
+                    cwd=project_root,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    timeout=30,
+                    **SUBPROCESS_EXTRA_KWARGS
+                )
+                if merge_proc.returncode != 0:
+                    return {
+                        "success": False,
+                        "error": proc.stderr or proc.stdout,
+                        "message": "Git pull was interrupted. Please ensure your local files are saved."
+                    }
             
+            # Restart backend process gracefully after responding to reload new code
+            def schedule_restart():
+                time.sleep(1.5)
+                try:
+                    if sys.platform == "win32":
+                        subprocess.Popen([sys.executable] + sys.argv, cwd=os.path.dirname(os.path.abspath(__file__)))
+                        os._exit(0)
+                    else:
+                        os.execv(sys.executable, [sys.executable] + sys.argv)
+                except Exception:
+                    pass
+            threading.Thread(target=schedule_restart, daemon=True).start()
+
             return {
                 "success": True,
-                "message": "CapShorts updated successfully! Reloading studio...",
+                "message": "CapShorts updated successfully! Reloading studio in 3 seconds...",
                 "git_output": proc.stdout.strip(),
                 "action_required": "reload"
             }
         else:
             return {
-                "success": True,
-                "is_packaged": True,
-                "message": "Opening latest MSI / DMG installer release page...",
-                "download_url": "https://github.com/thealiraza2/CapShorts/releases/latest",
-                "action_required": "download"
+                "success": False,
+                "message": "Standalone binary mode. Please download latest installer from releases.",
+                "release_url": "https://github.com/thealiraza2/CapShorts/releases/latest"
             }
     except Exception as e:
-        return {"success": False, "error": str(e)}
+        return {"success": False, "error": str(e), "message": f"Failed to apply update: {e}"}
 
 @app.get("/api/system/telemetry-stats")
 def get_telemetry_stats():
