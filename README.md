@@ -15,7 +15,7 @@ Generate word-accurate animated captions, extract viral vertical shorts, remove 
 
 <br />
 
-[📥 Download Installers](#-downloads) • [✨ Features](#-why-capshorts) • [📊 Comparison](#-feature-comparison) • [⚡ Quickstart](#-quickstart--local-development) • [⌨️ Shortcuts](#%EF%B8%8F-keyboard-shortcuts)
+[📥 Download Installers](#-downloads) • [✨ Features](#-why-capshorts) • [📊 Comparison](#-feature-comparison) • [📖 Documentation](./DOCUMENTATION.md) • [⚡ Quickstart](#-quickstart--local-development) • [⌨️ Shortcuts](#%EF%B8%8F-keyboard-shortcuts)
 
 ---
 
