@@ -64,8 +64,7 @@ function createWindow() {
     center: true,
     backgroundColor: '#09090b',
     title: 'CapShorts - Desktop AI Video Studio',
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-    trafficLightPosition: process.platform === 'darwin' ? { x: 16, y: 16 } : undefined,
+    titleBarStyle: 'default',
     show: false,
     webPreferences: {
       nodeIntegration: false,
