@@ -607,6 +607,20 @@ async def start_transcription(
     )
     return {"status": "started", "task_id": task_id, "video_path": target_video}
 
+@app.post("/api/upload-video")
+async def upload_video_file(file: UploadFile = File(...)):
+    """Receives and caches video file on server for editing and export."""
+    task_id = str(uuid.uuid4())[:8]
+    file_ext = os.path.splitext(file.filename or ".mp4")[1]
+    target_video = os.path.join(TEMP_DIR, f"input_{task_id}{file_ext}")
+    with open(target_video, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+    return {
+        "status": "success",
+        "video_path": target_video,
+        "filename": file.filename
+    }
+
 @app.get("/api/transcribe/progress/{task_id}")
 def get_transcribe_progress(task_id: str):
     """Returns live percentage progress, status step, and result when completed."""
