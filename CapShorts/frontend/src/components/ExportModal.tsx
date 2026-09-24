@@ -79,6 +79,7 @@ export const ExportModal: React.FC = () => {
     aspectRatio,
     clips,
     selectedClipId,
+    videoFile,
     serverVideoPath
   } = useVideoStore();
 
@@ -92,6 +93,7 @@ export const ExportModal: React.FC = () => {
     activeClip ? `viral_short_${activeClip.duration}s.mp4` : 'capshorts_export.mp4'
   );
   const [exportingSubtitle, setExportingSubtitle] = useState<'srt' | 'vtt' | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     if (activeClip) {
@@ -101,8 +103,6 @@ export const ExportModal: React.FC = () => {
   }, [activeClip]);
 
   if (!isExportModalOpen) return null;
-
-  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownloadVideo = async () => {
     if (!exportResultUrl || exportResultUrl === '#') return;
@@ -183,8 +183,29 @@ export const ExportModal: React.FC = () => {
     const preset = presets.find(p => p.id === activeTemplateId) || presets[0];
 
     try {
+      let effectiveVideoPath = serverVideoPath;
+
+      // If user imported a video directly without transcribing, sync source file to engine
+      if (!effectiveVideoPath && videoFile) {
+        setExportProgress(8, "Syncing video with rendering engine...");
+        try {
+          const formData = new FormData();
+          formData.append('file', videoFile);
+          const upRes = await fetch(apiUrl('/api/upload-video'), {
+            method: 'POST',
+            body: formData
+          });
+          if (upRes.ok) {
+            const upData = await upRes.json();
+            effectiveVideoPath = upData.video_path;
+          }
+        } catch (e) {
+          console.warn("Video upload sync error:", e);
+        }
+      }
+
       const payload: any = {
-        video_path: serverVideoPath || null,
+        video_path: effectiveVideoPath || null,
         transcript: transcript,
         preset: preset,
         custom_overrides: customStyleOverrides,

@@ -27,10 +27,48 @@ export const SettingsModal: React.FC = () => {
     engineHealth
   } = useVideoStore();
 
-  const [activeSettingsTab, setActiveSettingsTab] = useState<'ai' | 'hardware' | 'broll' | 'updates'>('ai');
+  const [activeSettingsTab, setActiveSettingsTab] = useState<'ai' | 'hardware' | 'broll' | 'privacy' | 'updates'>('ai');
   const [tempGroqKey, setTempGroqKey] = useState(groqApiKey);
   const [pexelsKey, setPexelsKey] = useState(() => localStorage.getItem('capshorts_pexels_key') || localStorage.getItem('opencaption_pexels_key') || '');
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  // Privacy & Anonymous Diagnostics State
+  const [telemetryEnabled, setTelemetryEnabled] = useState(true);
+  const [telemetryMachineId, setTelemetryMachineId] = useState('');
+  const [telemetryOs, setTelemetryOs] = useState('');
+  const [isUpdatingTelemetry, setIsUpdatingTelemetry] = useState(false);
+
+  const fetchTelemetrySettings = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/system/telemetry-settings');
+      if (res.ok) {
+        const data = await res.json();
+        setTelemetryEnabled(data.enabled !== false);
+        setTelemetryMachineId(data.machine_id || '');
+        setTelemetryOs(data.os || '');
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleToggleTelemetry = async (enabled: boolean) => {
+    setTelemetryEnabled(enabled);
+    setIsUpdatingTelemetry(true);
+    try {
+      await fetch('http://127.0.0.1:8000/api/system/telemetry-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled })
+      });
+      setSaveMessage(enabled ? 'Anonymous diagnostics enabled.' : 'Anonymous diagnostics disabled. Zero telemetry sent.');
+      setTimeout(() => setSaveMessage(null), 3000);
+    } catch {
+      // ignore
+    } finally {
+      setIsUpdatingTelemetry(false);
+    }
+  };
 
   // Auto-Update State
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
@@ -148,21 +186,21 @@ export const SettingsModal: React.FC = () => {
 
         {/* macOS Segmented Tab Navigation */}
         <div className="px-6 pt-3 pb-1 bg-zinc-950/30 border-b border-white/[0.06]">
-          <div className="grid grid-cols-4 gap-1 bg-zinc-900/80 p-1 rounded-xl border border-white/[0.06]">
+          <div className="grid grid-cols-5 gap-1 bg-zinc-900/80 p-1 rounded-xl border border-white/[0.06]">
             <button
               onClick={() => setActiveSettingsTab('ai')}
-              className={`py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
+              className={`py-2 px-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1 ${
                 activeSettingsTab === 'ai'
                   ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10 font-bold'
                   : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
               }`}
             >
               <Zap className="w-3.5 h-3.5 text-indigo-400" />
-              <span>AI Models</span>
+              <span>AI</span>
             </button>
             <button
               onClick={() => setActiveSettingsTab('hardware')}
-              className={`py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
+              className={`py-2 px-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1 ${
                 activeSettingsTab === 'hardware'
                   ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10 font-bold'
                   : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
@@ -173,7 +211,7 @@ export const SettingsModal: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveSettingsTab('broll')}
-              className={`py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
+              className={`py-2 px-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1 ${
                 activeSettingsTab === 'broll'
                   ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10 font-bold'
                   : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
@@ -184,10 +222,24 @@ export const SettingsModal: React.FC = () => {
             </button>
             <button
               onClick={() => {
+                setActiveSettingsTab('privacy');
+                fetchTelemetrySettings();
+              }}
+              className={`py-2 px-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1 ${
+                activeSettingsTab === 'privacy'
+                  ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10 font-bold'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-violet-400" />
+              <span>Privacy</span>
+            </button>
+            <button
+              onClick={() => {
                 setActiveSettingsTab('updates');
                 fetchUpdateStatus();
               }}
-              className={`py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
+              className={`py-2 px-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1 ${
                 activeSettingsTab === 'updates'
                   ? 'bg-zinc-800 text-white shadow-xs ring-1 ring-white/10 font-bold'
                   : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
@@ -377,6 +429,91 @@ export const SettingsModal: React.FC = () => {
                     Save Key
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeSettingsTab === 'privacy' && (
+            <div className="space-y-4">
+              <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-5 space-y-4 shadow-sm backdrop-blur-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-2xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400">
+                      <ShieldCheck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">Anonymous Usage Diagnostics</h4>
+                      <p className="text-[11px] text-zinc-400">
+                        Helps us measure active installs and crash rates. 100% anonymous.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Toggle Switch */}
+                  <button
+                    type="button"
+                    onClick={() => handleToggleTelemetry(!telemetryEnabled)}
+                    disabled={isUpdatingTelemetry}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
+                      telemetryEnabled ? 'bg-violet-600' : 'bg-zinc-700'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        telemetryEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className="border-t border-white/[0.06] pt-3 text-[11px] space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-zinc-400">Telemetry Status:</span>
+                    <span className={`font-semibold px-2 py-0.5 rounded-md text-[10px] ${
+                      telemetryEnabled
+                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-zinc-800 text-zinc-400 border border-white/[0.06]'
+                    }`}>
+                      {telemetryEnabled ? 'Active (Anonymous Ping)' : 'Disabled (Zero Telemetry)'}
+                    </span>
+                  </div>
+                  {telemetryMachineId && telemetryEnabled && (
+                    <div className="flex items-center justify-between font-mono text-[10px] text-zinc-500">
+                      <span>Anonymous Machine Hash:</span>
+                      <span>{telemetryMachineId}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div className="bg-black/30 border border-white/[0.06] rounded-xl p-3 space-y-1.5">
+                    <span className="text-emerald-400 font-bold text-[11px] flex items-center space-x-1">
+                      <span>✓ What We Track</span>
+                    </span>
+                    <ul className="text-[10px] text-zinc-400 space-y-1 list-disc list-inside">
+                      <li>Anonymous machine hash ID</li>
+                      <li>Operating system ({telemetryOs || 'OS'})</li>
+                      <li>Number of video exports</li>
+                      <li>Heartbeat session duration</li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-black/30 border border-white/[0.06] rounded-xl p-3 space-y-1.5">
+                    <span className="text-red-400 font-bold text-[11px] flex items-center space-x-1">
+                      <span>✗ What We NEVER Track</span>
+                    </span>
+                    <ul className="text-[10px] text-zinc-400 space-y-1 list-disc list-inside">
+                      <li>Video or audio file content</li>
+                      <li>Video file names or local paths</li>
+                      <li>Transcripts or spoken speech</li>
+                      <li>Any personal user credentials</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-zinc-500 italic">
+                  Note: You can turn this off at any time. When disabled, zero network pings leave your computer.
+                </p>
               </div>
             </div>
           )}
