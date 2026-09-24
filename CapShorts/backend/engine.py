@@ -1264,8 +1264,36 @@ def get_update_status():
             ).strip()
             
             if out:
-                latest_commit = out.split()[0][:7]
-                update_available = (latest_commit != current_commit)
+                latest_full_hash = out.split()[0]
+                latest_commit = latest_full_hash[:7]
+                
+                # Check whether latest_commit from upstream is already in local git history
+                is_already_installed = False
+                try:
+                    if current_commit.startswith(latest_commit) or latest_commit.startswith(current_commit):
+                        is_already_installed = True
+                    else:
+                        res_obj = subprocess.run(
+                            ["git", "cat-file", "-e", latest_full_hash],
+                            cwd=project_root,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                            **SUBPROCESS_EXTRA_KWARGS
+                        )
+                        if res_obj.returncode == 0:
+                            res_anc = subprocess.run(
+                                ["git", "merge-base", "--is-ancestor", latest_full_hash, "HEAD"],
+                                cwd=project_root,
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL,
+                                **SUBPROCESS_EXTRA_KWARGS
+                            )
+                            if res_anc.returncode == 0:
+                                is_already_installed = True
+                except Exception:
+                    is_already_installed = False
+
+                update_available = not is_already_installed
                 if update_available:
                     details = f"New version ({latest_commit}) is ready to install!"
                 else:
@@ -1299,6 +1327,15 @@ def apply_update():
         git_dir = os.path.join(project_root, ".git")
         if os.path.exists(git_dir):
             remote_target = get_update_remote_target(project_root)
+            
+            # Pre-fetch upstream changes
+            subprocess.run(
+                ["git", "fetch", remote_target, "main"],
+                cwd=project_root,
+                timeout=30,
+                **SUBPROCESS_EXTRA_KWARGS
+            )
+            
             cmd = ["git", "pull", "--no-rebase", "--autostash", remote_target, "main"]
             proc = subprocess.run(
                 cmd,
@@ -1310,13 +1347,7 @@ def apply_update():
                 **SUBPROCESS_EXTRA_KWARGS
             )
             if proc.returncode != 0:
-                # Fallback to fetch and merge
-                subprocess.run(
-                    ["git", "fetch", remote_target, "main"],
-                    cwd=project_root,
-                    timeout=30,
-                    **SUBPROCESS_EXTRA_KWARGS
-                )
+                # Fallback to merge
                 merge_proc = subprocess.run(
                     ["git", "merge", f"{remote_target}/main", "-m", "chore: sync upstream update"],
                     cwd=project_root,
@@ -1338,7 +1369,11 @@ def apply_update():
                 time.sleep(1.5)
                 try:
                     if sys.platform == "win32":
-                        subprocess.Popen([sys.executable] + sys.argv, cwd=os.path.dirname(os.path.abspath(__file__)))
+                        subprocess.Popen(
+                            [sys.executable] + sys.argv,
+                            cwd=os.path.dirname(os.path.abspath(__file__)),
+                            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                        )
                         os._exit(0)
                     else:
                         os.execv(sys.executable, [sys.executable] + sys.argv)
